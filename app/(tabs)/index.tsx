@@ -6,9 +6,30 @@ import {
 } from "react-native-safe-area-context";
 
 import { SearchBar } from "@/components/search-bar";
+import { StopsCarousel } from "@/components/stops-carousel";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const stops = [
+    {
+      id: "1",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 391,
+    },
+    {
+      id: "2",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 392,
+    },
+    {
+      id: "3",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 393,
+    },
+  ];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -31,6 +52,16 @@ export default function HomeScreen() {
           }}
         >
           <SearchBar />
+        </View>
+        <View
+          style={{
+            position: "absolute",
+            left: 16,
+            right: 16,
+            top: Math.max(insets.top + 76, 90),
+          }}
+        >
+          <StopsCarousel stops={stops} />
         </View>
       </View>
     </SafeAreaView>
