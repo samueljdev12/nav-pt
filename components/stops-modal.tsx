@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import {
-    Animated,
-    FlatList,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  FlatList,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 
 import { StopCard } from "@/components/stop-card";
@@ -22,9 +20,17 @@ export interface StopsModalProps {
   visible: boolean;
   stops: StopItem[];
   onClose: () => void;
+  topOffset?: number;
+  bottomOffset?: number;
 }
 
-export function StopsModal({ visible, stops, onClose }: StopsModalProps) {
+export function StopsModal({
+  visible,
+  stops,
+  onClose,
+  topOffset = 90,
+  bottomOffset = 0,
+}: StopsModalProps) {
   const translateY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -38,54 +44,45 @@ export function StopsModal({ visible, stops, onClose }: StopsModalProps) {
     }
   }, [visible, translateY]);
 
+  if (!visible) return null;
+
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onClose}
+    <Animated.View
+      style={[
+        styles.sheet,
+        {
+          top: topOffset,
+          bottom: bottomOffset,
+          transform: [{ translateY }],
+        },
+      ]}
     >
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <Animated.View
-        style={[
-          styles.sheet,
-          {
-            transform: [{ translateY }],
-          },
-        ]}
-      >
-        <View style={styles.handle} />
-        <Text style={styles.header}>Nearby</Text>
-        <FlatList
-          data={stops}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <View style={styles.listItem}>
-              <StopCard
-                title={item.title}
-                subtitle={item.subtitle}
-                minutes={item.minutes}
-              />
-            </View>
-          )}
-        />
-        <Text style={styles.hint}>Swipe up to close</Text>
-      </Animated.View>
-    </Modal>
+      <View style={styles.handle} />
+      <Text style={styles.header}>Nearby</Text>
+      <FlatList
+        data={stops}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <StopCard
+              title={item.title}
+              subtitle={item.subtitle}
+              minutes={item.minutes}
+            />
+          </View>
+        )}
+      />
+      <Text style={styles.hint}>Swipe up to close</Text>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.2)",
-  },
   sheet: {
     position: "absolute",
     left: 16,
     right: 16,
-    bottom: 16,
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 16,
@@ -96,7 +93,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
-    maxHeight: "70%",
   },
   handle: {
     alignSelf: "center",
