@@ -84,7 +84,6 @@ export function StopsModal({
           </View>
         )}
       />
-      <Text style={styles.hint}>Swipe up to close</Text>
     </Animated.View>
   );
 }
