@@ -1,4 +1,6 @@
-import { View } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React from "react";
+import { Pressable, View } from "react-native";
 import MapView from "react-native-maps";
 import {
     SafeAreaView,
@@ -7,9 +9,11 @@ import {
 
 import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/stops-carousel";
+import { StopsModal } from "@/components/stops-modal";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const [isStopsOpen, setIsStopsOpen] = React.useState(false);
   const stops = [
     {
       id: "1",
@@ -61,8 +65,37 @@ export default function HomeScreen() {
             top: Math.max(insets.top + 76, 90),
           }}
         >
-          <StopsCarousel stops={stops} />
+          <View style={{ position: "relative" }}>
+            <StopsCarousel stops={stops} />
+            <Pressable
+              accessibilityLabel="Add stop"
+              onPress={() => setIsStopsOpen(true)}
+              style={{
+                position: "absolute",
+                right: -8,
+                bottom: -8,
+                height: 32,
+                width: 32,
+                borderRadius: 16,
+                backgroundColor: "#4B5563",
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: "#000",
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                shadowOffset: { width: 0, height: 2 },
+                elevation: 3,
+              }}
+            >
+              <MaterialIcons name="add" size={20} color="#FFFFFF" />
+            </Pressable>
+          </View>
         </View>
+        <StopsModal
+          stops={stops}
+          visible={isStopsOpen}
+          onClose={() => setIsStopsOpen(false)}
+        />
       </View>
     </SafeAreaView>
   );
