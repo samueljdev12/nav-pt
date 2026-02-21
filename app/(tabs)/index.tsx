@@ -3,8 +3,8 @@ import React from "react";
 import { Pressable, View } from "react-native";
 import MapView from "react-native-maps";
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 import { SearchBar } from "@/components/search-bar";
@@ -32,6 +32,30 @@ export default function HomeScreen() {
       title: "→ Lynbrook Station (via Cranbourne…)",
       subtitle: "Shopping on Clyde/Berwick-Cranbou…",
       minutes: 393,
+    },
+    {
+      id: "4",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 390,
+    },
+    {
+      id: "5",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 493,
+    },
+    {
+      id: "6",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 593,
+    },
+    {
+      id: "7",
+      title: "→ Lynbrook Station (via Cranbourne…)",
+      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
+      minutes: 383,
     },
   ];
 
