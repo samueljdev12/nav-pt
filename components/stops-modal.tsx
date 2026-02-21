@@ -1,10 +1,12 @@
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 
 import { StopCard } from "@/components/stop-card";
@@ -57,7 +59,16 @@ export function StopsModal({
         },
       ]}
     >
-      <View style={styles.handle} />
+      <View style={styles.headerRow}>
+        <View style={styles.handle} />
+        <Pressable
+          onPress={onClose}
+          style={styles.closeButton}
+          accessibilityLabel="Close modal"
+        >
+          <MaterialIcons name="close" size={24} color="#374151" />
+        </Pressable>
+      </View>
       <Text style={styles.header}>Nearby</Text>
       <FlatList
         data={stops}
@@ -101,6 +112,16 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: "#E5E7EB",
     marginBottom: 8,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  closeButton: {
+    padding: 4,
+    marginRight: -8,
   },
   header: {
     textAlign: "center",
