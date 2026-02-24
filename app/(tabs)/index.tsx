@@ -10,8 +10,26 @@ import {
 import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/stops-carousel";
 import { StopsModal } from "@/components/stops-modal";
+import { useQuery } from "@apollo/client/react";
+import { GET_NEARBY_STOPS } from "@/graphql/queries";
 
 export default function HomeScreen() {
+  const { loading, error, data } = useQuery(GET_NEARBY_STOPS, {
+    variables: {
+      lat: -38.125755310058594,
+      lon: 145.3208465576172,
+      radius: 5000, // Radius in meters
+    },
+  });
+
+  if (data) {
+    console.log("Nearby Stops:", JSON.stringify(data, null, 2));
+  }
+
+  if (error) {
+    console.error("Error fetching nearby stops:", error);
+  }
+
   const insets = useSafeAreaInsets();
   const [isStopsOpen, setIsStopsOpen] = React.useState(false);
   const stops = [
