@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
 const AppClient = new ApolloClient({
   link: new HttpLink({
-    uri: "https://api.navpt.com/graphql",
+    uri: "https://opentripplanner-production.up.railway.app/otp/routers/default/index/graphql",
   }),
   cache: new InMemoryCache(),
   defaultOptions: {
