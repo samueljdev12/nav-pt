@@ -8,6 +8,9 @@ export interface StopItem {
   title: string;
   subtitle: string;
   minutes: number;
+  color?: string;
+  textColor?: string;
+  mode?: string;
 }
 
 export interface StopsCarouselProps {
@@ -41,6 +44,9 @@ export function StopsCarousel({ stops }: StopsCarouselProps) {
               title={stop.title}
               subtitle={stop.subtitle}
               minutes={stop.minutes}
+              color={stop.color}
+              textColor={stop.textColor}
+              mode={stop.mode}
             />
           </View>
         ))}

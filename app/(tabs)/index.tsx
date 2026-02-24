@@ -12,70 +12,43 @@ import { StopsCarousel } from "@/components/stops-carousel";
 import { StopsModal } from "@/components/stops-modal";
 import { useQuery } from "@apollo/client/react";
 import { GET_NEARBY_STOPS } from "@/graphql/queries";
+import { YourStopsCardData } from "@/types/graphql";
 
 export default function HomeScreen() {
-  const { loading, error, data } = useQuery(GET_NEARBY_STOPS, {
-    variables: {
-      lat: -38.125755310058594,
-      lon: 145.3208465576172,
-      radius: 5000, // Radius in meters
+  const { loading, error, data } = useQuery<YourStopsCardData>(
+    GET_NEARBY_STOPS,
+    {
+      variables: {
+        // lat: -38.125755310058594,
+        // lon: 145.3208465576172,
+        lat: -37.8081607,
+        lon: 144.9645832,
+        radius: 5000, // Radius in meters
+        first: 5, // Number of stops to fetch
+      },
     },
-  });
-
-  if (data) {
-    console.log("Nearby Stops:", JSON.stringify(data, null, 2));
-  }
+  );
 
   if (error) {
     console.error("Error fetching nearby stops:", error);
   }
 
+  console.log("Nearby stops data:", JSON.stringify(data, null, 2));
+
   const insets = useSafeAreaInsets();
   const [isStopsOpen, setIsStopsOpen] = React.useState(false);
-  const stops = [
-    {
-      id: "1",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 391,
-    },
-    {
-      id: "2",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 392,
-    },
-    {
-      id: "3",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 393,
-    },
-    {
-      id: "4",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 390,
-    },
-    {
-      id: "5",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 493,
-    },
-    {
-      id: "6",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 593,
-    },
-    {
-      id: "7",
-      title: "→ Lynbrook Station (via Cranbourne…)",
-      subtitle: "Shopping on Clyde/Berwick-Cranbou…",
-      minutes: 383,
-    },
-  ];
+
+  // Map query response to stops format
+  const stops =
+    data?.stopsByRadius.edges.map((edge, index) => ({
+      id: edge.node.stop.gtfsId,
+      title: `→ ${edge.node.stop.routes[0]?.longName.split(" - ").pop() || "Unknown Route"}`,
+      subtitle: edge.node.stop.name,
+      minutes: Math.floor(Math.random() * 600) + 1,
+      color: edge.node.stop.routes[0]?.color,
+      textColor: edge.node.stop.routes[0]?.textColor,
+      mode: edge.node.stop.routes[0]?.mode,
+    })) || [];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
