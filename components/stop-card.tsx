@@ -1,25 +1,44 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { hexToRgba } from "@/utils/colorUtils";
+import { getModeIcon } from "@/utils/iconUtils";
 
 export interface StopCardProps {
   title: string;
   subtitle: string;
   minutes: number;
+  color?: string;
+  textColor?: string;
+  mode?: string;
 }
 
-export function StopCard({ title, subtitle, minutes }: StopCardProps) {
+export function StopCard({
+  title,
+  subtitle,
+  minutes,
+  color = "F59E0B",
+  textColor = "FFFFFF",
+  mode = "BUS",
+}: StopCardProps) {
+  const cardBgColor = hexToRgba(color, 0.55);
+  const subtitleBgColor = `#${color}`;
+  const subtitleTextColor = `#${textColor}`;
+  const modeIcon = getModeIcon(mode);
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: cardBgColor }]}>
       <View style={styles.leftRow}>
-        <View style={styles.iconCircle}>
-          <MaterialIcons name="directions-bus" size={20} color="#FFFFFF" />
+        <View style={[styles.iconCircle, { backgroundColor: subtitleBgColor }]}>
+          <Image source={modeIcon} style={styles.icon} resizeMode="contain" />
         </View>
         <View style={styles.texts}>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={styles.title}>{title}</Text>
+          <Text
+            style={[
+              styles.subtitle,
+              { backgroundColor: subtitleBgColor, color: subtitleTextColor },
+            ]}
+          >
             {subtitle}
           </Text>
         </View>
@@ -45,6 +64,7 @@ const styles = StyleSheet.create({
   leftRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   iconCircle: {
@@ -56,25 +76,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 10,
   },
+  icon: {
+    height: 20,
+    width: 20,
+  },
   texts: {
     flex: 1,
   },
   title: {
-    fontSize: 12,
+    flex: 1,
+    fontSize: 11,
     fontWeight: "700",
     color: "#1A1A1A",
-    backgroundColor: "#FCD34D",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: "#dddddd",
+    paddingVertical: 1,
     borderRadius: 10,
-    alignSelf: "flex-start",
-    overflow: "hidden",
-    marginBottom: 6,
+    marginBottom: 2,
+    width: "100%",
+    textAlign: "center",
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "700",
     color: "#FFFFFF",
+    borderRadius: 18,
+    width: "100%",
+    textAlign: "center",
+    backgroundColor: "#FCD34D",
+    paddingVertical: 3,
   },
   minutesBox: {
     alignItems: "center",
