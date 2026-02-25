@@ -8,8 +8,8 @@ import {
 } from "react-native-safe-area-context";
 
 import { SearchBar } from "@/components/search-bar";
-import { StopsCarousel } from "@/components/stops-carousel";
-import { StopsModal } from "@/components/stops-modal";
+import { StopsCarousel } from "@/components/carousels/stops-carousel";
+import { StopsModal } from "@/components/modals/stops-modal";
 import { useQuery } from "@apollo/client/react";
 import { GET_NEARBY_STOPS } from "@/graphql/queries";
 import { YourStopsCardData } from "@/types/graphql";
