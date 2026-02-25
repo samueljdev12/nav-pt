@@ -43,7 +43,7 @@ export function ModalStopCard({
   const routeTextColor = normalize(textColor) || "FFFFFF";
 
   // subtle card background using route color at low opacity
-  const cardBg = hexToRgba(routeColor, 0.12);
+  const cardBg = hexToRgba(routeColor, 0.28);
 
   return (
     <View style={[styles.card, { backgroundColor: cardBg }, style]}>
