@@ -1,6 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
-import { Pressable, View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 import MapView from "react-native-maps";
 import {
   SafeAreaView,
@@ -82,7 +82,26 @@ export default function HomeScreen() {
             }}
           >
             <View style={{ position: "relative" }}>
-              <StopsCarousel stops={stops} />
+              {loading ? (
+                <View
+                  style={{
+                    height: 120,
+                    borderRadius: 18,
+                    backgroundColor: "#FFFFFF",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    shadowColor: "#000",
+                    shadowOpacity: 0.08,
+                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 3,
+                  }}
+                >
+                  <ActivityIndicator size="large" color="#111827" />
+                </View>
+              ) : (
+                <StopsCarousel stops={stops} />
+              )}
               <Pressable
                 accessibilityLabel="Add stop"
                 onPress={() => setIsStopsOpen(true)}

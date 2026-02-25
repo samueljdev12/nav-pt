@@ -2,6 +2,7 @@ import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { hexToRgba } from "@/utils/colorUtils";
 import { getModeIcon } from "@/utils/iconUtils";
+import TextMarquee from "rn-marquee-text";
 
 export interface StopCardProps {
   title: string;
