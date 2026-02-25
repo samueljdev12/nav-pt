@@ -19,10 +19,10 @@ export default function HomeScreen() {
     GET_NEARBY_STOPS,
     {
       variables: {
-        // lat: -38.125755310058594,
-        // lon: 145.3208465576172,
-        lat: -37.8081607,
-        lon: 144.9645832,
+        lat: -38.125755310058594,
+        lon: 145.3208465576172,
+        // lat: -37.8081607,
+        // lon: 144.9645832,
         radius: 5000, // Radius in meters
         first: 5, // Number of stops to fetch
       },
@@ -56,10 +56,10 @@ export default function HomeScreen() {
         <MapView
           style={{ flex: 1 }}
           initialRegion={{
-            latitude: 37.7749,
-            longitude: -122.4194,
-            latitudeDelta: 0.2,
-            longitudeDelta: 0.2,
+            latitude: -37.8081607,
+            longitude: 144.9645832,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
           }}
         />
         <View

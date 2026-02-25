@@ -163,17 +163,19 @@ const primitives = StyleSheet.create({
     width: "100%",
     backgroundColor: "#dddddd",
     borderRadius: 18,
+    textAlign: "center",
   },
   subtitlePill: {
     alignSelf: "flex-start",
     borderRadius: 18,
     paddingHorizontal: 8,
-    paddingVertical: 1,
-    maxWidth: "100%",
+    paddingVertical: 4,
+    width: "100%",
   },
   subtitleText: {
     fontSize: 12,
     fontWeight: "700",
+    textAlign: "center",
   },
   minutesBox: {
     alignItems: "center",

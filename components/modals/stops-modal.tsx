@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { ModalStopCard } from "@/components/cards/modal-stop-card";
+import { StopCard } from "../cards/stop-card";
 
 export interface StopItem {
   id: string;
@@ -79,9 +80,10 @@ export function StopsModal({
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
-            <ModalStopCard
+            <StopCard
               title={item.title}
               subtitle={item.subtitle}
+              minutes={item.minutes}
               color={item.color}
               textColor={item.textColor}
               mode={item.mode}

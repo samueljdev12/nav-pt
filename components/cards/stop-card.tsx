@@ -5,7 +5,6 @@ import {
   RouteIcon,
   CardTitle,
   CardSubtitle,
-  MinutesPill,
 } from "@/components/ui/card-primitives";
 
 export interface StopCardProps {
@@ -56,8 +55,6 @@ export function StopCard({
           </CardSubtitle>
         </View>
       </View>
-
-      <MinutesPill minutes={minutes} textColor={routeTextColor} />
     </View>
   );
 }
