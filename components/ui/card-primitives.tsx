@@ -114,20 +114,17 @@ export function CardSubtitle({
  */
 export function MinutesPill({
   minutes,
-  bgColor,
   textColor,
   style,
 }: {
   minutes?: number | string;
-  bgColor?: string;
   textColor?: string;
   style?: ViewStyle;
 }) {
-  const pillBg = bgColor ? `#${String(bgColor).replace(/^#/, "")}` : "#F97316";
   const txt = textColor ? `#${String(textColor).replace(/^#/, "")}` : "#FFFFFF";
 
   return (
-    <View style={[primitives.minutesBox, { backgroundColor: pillBg }, style]}>
+    <View style={[primitives.minutesBox, style]}>
       <Text
         style={[primitives.minutesValue, { color: txt }]}
         accessibilityRole="text"

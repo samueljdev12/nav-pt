@@ -57,11 +57,7 @@ export function StopCard({
         </View>
       </View>
 
-      <MinutesPill
-        minutes={minutes}
-        bgColor={routeColor}
-        textColor={routeTextColor}
-      />
+      <MinutesPill minutes={minutes} textColor={routeTextColor} />
     </View>
   );
 }
