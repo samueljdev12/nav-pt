@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { StopCard } from "@/components/stop-card";
+import { StopCard } from "./stop-card";
 
 export interface StopItem {
   id: string;
