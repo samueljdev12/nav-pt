@@ -9,8 +9,8 @@ import {
   View,
 } from "react-native";
 
-import { ModalStopCard } from "@/components/cards/modal-stop-card";
 import { StopCard } from "../cards/stop-card";
+import { PlusBadge } from "../badges/PlusBadge";
 
 export interface StopItem {
   id: string;
@@ -29,6 +29,8 @@ export interface StopsModalProps {
   topOffset?: number;
   bottomOffset?: number;
 }
+
+const BADGE_OVERLAP = 14;
 
 export function StopsModal({
   visible,
@@ -88,6 +90,7 @@ export function StopsModal({
               textColor={item.textColor}
               mode={item.mode}
             />
+            <PlusBadge style={styles.floatingBadge} />
           </View>
         )}
       />
@@ -142,6 +145,14 @@ const styles = StyleSheet.create({
   },
   listItem: {
     width: "100%",
+    paddingTop: BADGE_OVERLAP,
+    position: "relative",
+  },
+  floatingBadge: {
+    position: "absolute",
+    top: 0,
+    right: 3,
+    zIndex: 10,
   },
   hint: {
     textAlign: "center",

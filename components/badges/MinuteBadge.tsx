@@ -2,24 +2,19 @@ import React, { useEffect, useRef } from "react";
 import { Text, StyleSheet, Animated, ViewStyle } from "react-native";
 
 export interface MinuteBadgeProps {
-  /** Minutes until arrival. Pass 0 for "Due now". */
   minutes: number;
-  /** Override the automatic urgency colour with a custom hex (with or without '#'). */
   color?: string;
-  /** Text colour override (hex). Defaults to white. */
   textColor?: string;
-  /** Show a subtle breathing pulse when minutes <= 1. */
   pulse?: boolean;
-  /** Extra style applied to the outer container. */
   style?: ViewStyle;
 }
 
 // ─── Urgency colour palette ────────────────────────────────────────────────
 function urgencyColor(minutes: number): string {
-  if (minutes <= 1) return "#EF4444"; // red   – due / imminent
-  if (minutes <= 4) return "#F97316"; // orange – very soon
-  if (minutes <= 9) return "#EAB308"; // amber  – soon
-  return "#22C55E"; // green  – plenty of time
+  if (minutes <= 1) return "#EF4444";
+  if (minutes <= 4) return "#F97316";
+  if (minutes <= 9) return "#EAB308";
+  return "#22C55E";
 }
 
 function normalizeHex(raw?: string): string | undefined {
@@ -27,7 +22,6 @@ function normalizeHex(raw?: string): string | undefined {
   return `#${raw.replace(/^#/, "")}`;
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────
 export function MinuteBadge({
   minutes,
   color,

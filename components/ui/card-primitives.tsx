@@ -7,15 +7,9 @@ import {
   ImageSourcePropType,
   ViewStyle,
 } from "react-native";
-import { hexToRgba } from "@/utils/colorUtils";
+
 import { getModeIcon } from "@/utils/iconUtils";
 
-/**
- * RouteIcon
- * - Displays the mode icon (PNG) inside a circular background.
- * - Accepts either an explicit `icon` source or a `mode` string (BUS/TRAIN/TRAM).
- * - `bgColor` and `tintColor` accept hex strings (with or without '#').
- */
 export function RouteIcon({
   mode,
   icon,
