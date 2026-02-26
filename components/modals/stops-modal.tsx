@@ -11,6 +11,7 @@ import {
 
 import { StopCard } from "../cards/stop-card";
 import { PlusBadge } from "../badges/PlusBadge";
+import { MinusBadge } from "../badges/MinusBadge";
 import { useFavourites } from "@/hooks/use-favourites";
 import { FavouriteStop } from "@/types/favourites";
 
@@ -42,7 +43,8 @@ export function StopsModal({
   bottomOffset = 0,
 }: StopsModalProps) {
   const translateY = useRef(new Animated.Value(0)).current;
-  const { favourites, addFavourite, filterUnfavourited } = useFavourites();
+  const { favourites, addFavourite, removeFavourite, filterUnfavourited } =
+    useFavourites();
 
   const nearbyStops = filterUnfavourited(stops);
 
@@ -116,6 +118,10 @@ export function StopsModal({
                   color={item.color}
                   textColor={item.textColor}
                   mode={item.mode}
+                />
+                <MinusBadge
+                  onPress={() => removeFavourite(item.id)}
+                  style={styles.floatingBadge}
                 />
               </View>
             ))}
@@ -222,7 +228,7 @@ const styles = StyleSheet.create({
   floatingBadge: {
     position: "absolute",
     top: 0,
-    right: 3,
+    right: 8,
     zIndex: 10,
   },
   divider: {
