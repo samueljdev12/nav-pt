@@ -10,8 +10,6 @@ import {
 import { hexToRgba } from "@/utils/colorUtils";
 import { getModeIcon } from "@/utils/iconUtils";
 
-type Maybe<T> = T | undefined;
-
 /**
  * RouteIcon
  * - Displays the mode icon (PNG) inside a circular background.
@@ -159,6 +157,7 @@ const primitives = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     color: "#111827",
+    marginTop: 6,
     marginBottom: 6,
     width: "100%",
     backgroundColor: "#dddddd",

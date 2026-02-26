@@ -19,12 +19,12 @@ export default function HomeScreen() {
     GET_NEARBY_STOPS,
     {
       variables: {
-        lat: -38.125755310058594,
-        lon: 145.3208465576172,
-        // lat: -37.8081607,
-        // lon: 144.9645832,
+        // lat: -38.125755310058594,
+        // lon: 145.3208465576172,
+        lat: -37.8081607,
+        lon: 144.9645832,
         radius: 5000, // Radius in meters
-        first: 5, // Number of stops to fetch
+        first: 10, // Number of stops to fetch
       },
     },
   );

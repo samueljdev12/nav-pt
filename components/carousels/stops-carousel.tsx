@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { StopCard } from "../cards/stop-card";
+import { MinuteBadge } from "../badges/MinuteBadge";
 
 export interface StopItem {
   id: string;
@@ -16,6 +17,8 @@ export interface StopItem {
 export interface StopsCarouselProps {
   stops: StopItem[];
 }
+
+const BADGE_OVERLAP = 18;
 
 export function StopsCarousel({ stops }: StopsCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -40,6 +43,7 @@ export function StopsCarousel({ stops }: StopsCarouselProps) {
       >
         {stops.map((stop) => (
           <View key={stop.id} style={[styles.cardWrap, { width: cardWidth }]}>
+            {/* Card sits below with top padding so the badge has room */}
             <StopCard
               title={stop.title}
               subtitle={stop.subtitle}
@@ -47,7 +51,11 @@ export function StopsCarousel({ stops }: StopsCarouselProps) {
               color={stop.color}
               textColor={stop.textColor}
               mode={stop.mode}
+              style={styles.card}
             />
+
+            {/* MinuteBadge floats at the top-left corner, above the card */}
+            <MinuteBadge minutes={stop.minutes} style={styles.floatingBadge} />
           </View>
         ))}
       </ScrollView>
@@ -89,7 +97,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardWrap: {
+    // Extra top padding so the badge (which is absolutely positioned) doesn't
+    // get clipped and has visual space sitting above the card.
+    paddingTop: BADGE_OVERLAP,
+    position: "relative",
     alignSelf: "center",
+  },
+  card: {},
+  floatingBadge: {
+    position: "absolute",
+    top: 0,
+    right: -5,
+    zIndex: 10,
   },
   dots: {
     flexDirection: "row",
