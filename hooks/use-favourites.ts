@@ -49,6 +49,17 @@ export function useFavourites() {
     setFavourites([]);
   }, [setFavourites]);
 
+  /**
+   * Given any array of items that have an `id` field, returns only the items
+   * whose id is NOT already saved as a favourite.
+   * Generic so it works with StopItem, FavouriteStop, or any id-bearing type.
+   */
+  const filterUnfavourited = useCallback(
+    <T extends { id: string }>(items: T[]): T[] =>
+      items.filter((item) => !isFavourite(item.id)),
+    [isFavourite],
+  );
+
   return {
     /** All saved favourite stops, always an array (never undefined). */
     favourites: all,
@@ -62,5 +73,7 @@ export function useFavourites() {
     toggleFavourite,
     /** Remove all favourites. */
     clearFavourites,
+    /** Filter an array of stops down to only those not already favourited. */
+    filterUnfavourited,
   };
 }

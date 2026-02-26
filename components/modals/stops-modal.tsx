@@ -42,7 +42,9 @@ export function StopsModal({
   bottomOffset = 0,
 }: StopsModalProps) {
   const translateY = useRef(new Animated.Value(0)).current;
-  const { favourites, addFavourite } = useFavourites();
+  const { favourites, addFavourite, filterUnfavourited } = useFavourites();
+
+  const nearbyStops = filterUnfavourited(stops);
 
   useEffect(() => {
     if (visible) {
@@ -126,17 +128,23 @@ export function StopsModal({
         {/* ── Nearby ── */}
         <Text style={styles.sectionHeader}>Nearby</Text>
 
-        {stops.length === 0 ? (
+        {nearbyStops.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📡</Text>
-            <Text style={styles.emptyTitle}>No nearby stops found</Text>
+            <Text style={styles.emptyTitle}>
+              {stops.length === 0
+                ? "No nearby stops found"
+                : "All nearby stops saved!"}
+            </Text>
             <Text style={styles.emptySubtitle}>
-              Try moving to a different location.
+              {stops.length === 0
+                ? "Try moving to a different location."
+                : "You've added all nearby stops to your list."}
             </Text>
           </View>
         ) : (
           <View style={styles.list}>
-            {stops.map((item) => (
+            {nearbyStops.map((item) => (
               <View key={item.id} style={styles.listItem}>
                 <StopCard
                   title={item.title}
