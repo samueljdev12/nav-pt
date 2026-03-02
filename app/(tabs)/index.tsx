@@ -10,45 +10,50 @@ import {
 import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/carousels/stops-carousel";
 import { StopsModal } from "@/components/modals/stops-modal";
-import { useQuery } from "@apollo/client/react";
-import { GET_NEARBY_STOPS } from "@/graphql/queries";
-import { YourStopsCardData } from "@/types/graphql";
+import { SearchWindowModal } from "@/components/modals/SearchWindowModal";
+// Using mock data while the API is down
 
 export default function HomeScreen() {
-  const { loading, error, data } = useQuery<YourStopsCardData>(
-    GET_NEARBY_STOPS,
+  // Mock stops data used while the API is down
+  const MOCK_STOPS = [
     {
-      variables: {
-        // lat: -38.125755310058594,
-        // lon: 145.3208465576172,
-        lat: -37.8081607,
-        lon: 144.9645832,
-        radius: 5000, // Radius in meters
-        first: 10, // Number of stops to fetch
-      },
+      id: "1001",
+      title: "→ Route 86",
+      subtitle: "Flinders St / Swanston St",
+      minutes: 5,
+      color: "0EA5E9",
+      textColor: "FFFFFF",
+      mode: "TRAM",
     },
-  );
+    {
+      id: "1002",
+      title: "→ Route 246",
+      subtitle: "Brunswick St / Johnston St",
+      minutes: 12,
+      color: "10B981",
+      textColor: "FFFFFF",
+      mode: "BUS",
+    },
+    {
+      id: "1003",
+      title: "→ Frankston",
+      subtitle: "South Yarra Station",
+      minutes: 3,
+      color: "EF4444",
+      textColor: "FFFFFF",
+      mode: "TRAIN",
+    },
+  ];
 
-  if (error) {
-    console.error("Error fetching nearby stops:", error);
-  }
-
-  console.log("Nearby stops data:", JSON.stringify(data, null, 2));
+  // Treat as not loading when using mock data
+  const loading = false;
 
   const insets = useSafeAreaInsets();
   const [isStopsOpen, setIsStopsOpen] = React.useState(false);
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
 
-  // Map query response to stops format
-  const stops =
-    data?.stopsByRadius.edges.map((edge, index) => ({
-      id: edge.node.stop.gtfsId,
-      title: `→ ${edge.node.stop.routes[0]?.longName.split(" - ").pop() || "Unknown Route"}`,
-      subtitle: edge.node.stop.name,
-      minutes: Math.floor(Math.random() * 600) + 1,
-      color: edge.node.stop.routes[0]?.color,
-      textColor: edge.node.stop.routes[0]?.textColor,
-      mode: edge.node.stop.routes[0]?.mode,
-    })) || [];
+  // Use the mock stops directly
+  const stops = MOCK_STOPS;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -70,7 +75,10 @@ export default function HomeScreen() {
             top: Math.max(insets.top, 12),
           }}
         >
-          <SearchBar />
+          <SearchBar
+            onPress={() => setIsSearchOpen(true)}
+            onIconPress={() => setIsSearchOpen(true)}
+          />
         </View>
         {!isStopsOpen && (
           <View
@@ -133,6 +141,11 @@ export default function HomeScreen() {
           onClose={() => setIsStopsOpen(false)}
           topOffset={Math.max(insets.top + 76, 90)}
           bottomOffset={insets.bottom}
+        />
+        <SearchWindowModal
+          visible={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          nearbyStops={stops}
         />
       </View>
     </SafeAreaView>

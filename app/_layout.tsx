@@ -3,7 +3,13 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ApolloProvider } from "@apollo/client/react";
+import * as SplashScreen from "expo-splash-screen";
 import AppClient from "../api/appolloClient";
+
+SplashScreen.setOptions({
+  duration: 800,
+  fade: true,
+});
 
 export const unstable_settings = {
   anchor: "(tabs)",
