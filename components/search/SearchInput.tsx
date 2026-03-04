@@ -1,18 +1,38 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, TextInput, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { suggestMapboxPlaces, MapboxSuggestion } from "@/api/mapbox";
 
 interface SearchInputProps {
   value: string;
   onChangeText: (text: string) => void;
+  onSuggestionsChange?: (suggestions: MapboxSuggestion[]) => void;
   placeholder?: string;
 }
 
 export function SearchInput({
   value,
   onChangeText,
+  onSuggestionsChange,
   placeholder = "Search address or stop...",
 }: SearchInputProps) {
+  useEffect(() => {
+    if (value.trim().length > 2) {
+      const timer = setTimeout(async () => {
+        const suggestions = await suggestMapboxPlaces(value);
+        if (onSuggestionsChange) {
+          onSuggestionsChange(suggestions);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
+    } else {
+      if (onSuggestionsChange) {
+        onSuggestionsChange([]);
+      }
+    }
+  }, [value, onSuggestionsChange]);
+
   return (
     <View style={styles.container}>
       <MaterialIcons
@@ -30,7 +50,11 @@ export function SearchInput({
         cursorColor="#111827"
       />
       {value.length > 0 && (
-        <Pressable onPress={() => onChangeText("")} style={styles.clearBtn}>
+        <Pressable
+          onPress={() => onChangeText("")}
+          style={styles.clearBtn}
+          hitSlop={8}
+        >
           <MaterialIcons name="close" size={20} color="#6B7280" />
         </Pressable>
       )}

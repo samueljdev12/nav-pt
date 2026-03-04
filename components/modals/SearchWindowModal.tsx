@@ -1,18 +1,16 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   StyleSheet,
   Text,
   View,
-  ScrollView,
   Pressable,
+  ScrollView,
 } from "react-native";
-import { StopCard } from "../cards/stop-card";
-import { PlusBadge } from "../badges/PlusBadge";
 import { SearchInput } from "../search/SearchInput";
 import { SearchDefault } from "../search/SearchDefault";
-import { useFavourites } from "@/hooks/use-favourites";
+import { MapboxSuggestion } from "@/api/mapbox";
 
 interface StopItem {
   id: string;
@@ -36,29 +34,11 @@ export function SearchWindowModal({
   nearbyStops = [],
 }: SearchWindowModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { addFavourite } = useFavourites();
-
-  // Simple filter: match title or subtitle
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return nearbyStops.filter(
-      (stop) =>
-        stop.title.toLowerCase().includes(query) ||
-        stop.subtitle.toLowerCase().includes(query)
-    );
-  }, [searchQuery, nearbyStops]);
-
-  const toFavourite = (item: StopItem) => ({
-    id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    color: item.color,
-    textColor: item.textColor,
-    mode: item.mode,
-  });
+  const [suggestions, setSuggestions] = useState<MapboxSuggestion[]>([]);
 
   if (!visible) return null;
+
+  const hasSearch = searchQuery.trim().length > 0;
 
   return (
     <Modal
@@ -69,11 +49,10 @@ export function SearchWindowModal({
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          {/* ── Header ── */}
           <View style={styles.headerRow}>
             <Pressable
               onPress={onClose}
-              style={styles.closeButton}
+              style={styles.backButton}
               accessibilityLabel="Close search"
             >
               <MaterialIcons name="arrow-back" size={24} color="#374151" />
@@ -82,54 +61,66 @@ export function SearchWindowModal({
             <View style={{ width: 24 }} />
           </View>
 
-          {/* ── Search Input ── */}
           <View style={styles.inputWrapper}>
             <SearchInput
               value={searchQuery}
               onChangeText={setSearchQuery}
+              onSuggestionsChange={setSuggestions}
               placeholder="Search address or stop..."
             />
           </View>
 
-          {/* ── Conditional Render ── */}
-          {searchQuery.trim().length > 0 ? (
-            // Show search results
+          {hasSearch ? (
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
-              <Text style={styles.sectionHeader}>Results</Text>
-              {searchResults.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyIcon}>🔍</Text>
-                  <Text style={styles.emptyTitle}>No results found</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Try searching for a different stop or address.
-                  </Text>
+              {suggestions.length > 0 ? (
+                <View>
+                  <Text style={styles.sectionHeader}>Suggestions</Text>
+                  <View style={styles.suggestionsList}>
+                    {suggestions.map((suggestion) => (
+                      <Pressable
+                        key={suggestion.mapbox_id}
+                        style={styles.suggestionItem}
+                        onPress={() => {
+                          setSearchQuery(suggestion.place_formatted);
+                          setSuggestions([]);
+                        }}
+                      >
+                        <View style={styles.iconContainer}>
+                          <MaterialIcons
+                            name="location-on"
+                            size={18}
+                            color="#6B7280"
+                          />
+                        </View>
+                        <View style={styles.textContainer}>
+                          <Text style={styles.suggestionName} numberOfLines={1}>
+                            {suggestion.name}
+                          </Text>
+                          <Text
+                            style={styles.suggestionPlace}
+                            numberOfLines={1}
+                          >
+                            {suggestion.place_formatted}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
               ) : (
-                <View style={styles.stopsList}>
-                  {searchResults.map((stop) => (
-                    <View key={stop.id} style={styles.listItem}>
-                      <StopCard
-                        title={stop.title}
-                        subtitle={stop.subtitle}
-                        minutes={stop.minutes}
-                        color={stop.color}
-                        textColor={stop.textColor}
-                        mode={stop.mode}
-                      />
-                      <PlusBadge
-                        onPress={() => addFavourite(toFavourite(stop))}
-                        style={styles.floatingBadge}
-                      />
-                    </View>
-                  ))}
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>🔍</Text>
+                  <Text style={styles.emptyTitle}>No suggestions found</Text>
+                  <Text style={styles.emptySubtitle}>
+                    Try searching for a different address or location.
+                  </Text>
                 </View>
               )}
             </ScrollView>
           ) : (
-            // Show default view
             <SearchDefault nearbyStops={nearbyStops} />
           )}
         </View>
@@ -164,12 +155,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
   },
-  closeButton: {
+  backButton: {
     padding: 4,
     marginLeft: -8,
   },
   inputWrapper: {
-    marginBottom: 8,
+    marginBottom: 12,
   },
   scrollContent: {
     paddingBottom: 16,
@@ -180,30 +171,50 @@ const styles = StyleSheet.create({
     color: "#111827",
     marginBottom: 12,
     letterSpacing: 0.3,
+    paddingHorizontal: 16,
   },
-  stopsList: {
-    gap: 12,
+  suggestionsList: {
+    gap: 8,
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
-  listItem: {
-    width: "100%",
-    paddingTop: 14,
-    position: "relative",
+  suggestionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 12,
   },
-  floatingBadge: {
-    position: "absolute",
-    top: 0,
-    right: 8,
-    zIndex: 10,
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  suggestionName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  suggestionPlace: {
+    fontSize: 12,
+    color: "#6B7280",
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: 24,
+    paddingVertical: 40,
     paddingHorizontal: 16,
     backgroundColor: "#F9FAFB",
     borderRadius: 16,
     gap: 6,
-    marginBottom: 16,
   },
   emptyIcon: {
     fontSize: 32,
