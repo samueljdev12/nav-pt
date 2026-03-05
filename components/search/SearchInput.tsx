@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { StyleSheet, TextInput, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { suggestMapboxPlaces, MapboxSuggestion } from "@/api/mapbox";
+import { mapboxService } from "@/api/mapbox";
 
 interface SearchInputProps {
   value: string;
   onChangeText: (text: string) => void;
-  onSuggestionsChange?: (suggestions: MapboxSuggestion[]) => void;
+  onSuggestionsChange?: (suggestions: any) => void;
   placeholder?: string;
 }
 
@@ -19,7 +19,7 @@ export function SearchInput({
   useEffect(() => {
     if (value.trim().length > 2) {
       const timer = setTimeout(async () => {
-        const suggestions = await suggestMapboxPlaces(value);
+        const suggestions = await mapboxService.setQuery(value).suggest();
         if (onSuggestionsChange) {
           onSuggestionsChange(suggestions);
         }

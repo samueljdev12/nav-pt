@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SearchInput } from "../search/SearchInput";
 import { SearchDefault } from "../search/SearchDefault";
-import { MapboxSuggestion } from "@/api/mapbox";
+import { mapboxService } from "@/api/mapbox";
 
 interface StopItem {
   id: string;
@@ -26,6 +26,31 @@ interface SearchWindowModalProps {
   visible: boolean;
   onClose: () => void;
   nearbyStops?: StopItem[];
+}
+
+interface MapboxSuggestion {
+  name: string;
+  mapbox_id: string;
+  place_formatted: string;
+  feature_type?: "place" | "address" | "poi";
+  context?: {
+    country?: {
+      name: string;
+      country_code: string;
+    };
+    region?: {
+      name: string;
+      region_code: string;
+    };
+    place?: {
+      name: string;
+    };
+    address?: {
+      name: string;
+      street_name?: string;
+    };
+  };
+  distance?: number;
 }
 
 export function SearchWindowModal({
@@ -83,9 +108,11 @@ export function SearchWindowModal({
                       <Pressable
                         key={suggestion.mapbox_id}
                         style={styles.suggestionItem}
-                        onPress={() => {
+                        onPress={async () => {
                           setSearchQuery(suggestion.place_formatted);
                           setSuggestions([]);
+                          // Fetch full details for the selected suggestion
+                          await mapboxService.retrieve(suggestion.mapbox_id);
                         }}
                       >
                         <View style={styles.iconContainer}>
