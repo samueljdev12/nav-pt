@@ -1,11 +1,14 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
-import MapView from "react-native-maps";
+import Mapbox, { MapView } from "@rnmapbox/maps";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+
+// Set Mapbox access token
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAP_BOX_API || "");
 
 import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/carousels/stops-carousel";
@@ -58,15 +61,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <View style={{ flex: 1 }}>
-        <MapView
-          style={{ flex: 1 }}
-          initialRegion={{
-            latitude: -37.8081607,
-            longitude: 144.9645832,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          }}
-        />
+        <MapView style={{ flex: 1 }} />
         <View
           style={{
             position: "absolute",
