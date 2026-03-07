@@ -14,6 +14,7 @@ import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/carousels/stops-carousel";
 import { StopsModal } from "@/components/modals/stops-modal";
 import { SearchWindowModal } from "@/components/modals/SearchWindowModal";
+import { useUserLocation } from "@/hooks/useUserLocation";
 // Using mock data while the API is down
 
 export default function HomeScreen() {
@@ -55,8 +56,20 @@ export default function HomeScreen() {
   const [isStopsOpen, setIsStopsOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
 
+  // Get user location
+  const {
+    location,
+    loading: locationLoading,
+    error: locationError,
+  } = useUserLocation();
+
   // Use the mock stops directly
   const stops = MOCK_STOPS;
+
+  // Use user location or default to Melbourne
+  const mapCenter = location
+    ? [location.longitude, location.latitude]
+    : [144.9645832, -37.8081607];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -64,7 +77,7 @@ export default function HomeScreen() {
         <MapView style={{ flex: 1 }}>
           <Camera
             zoomLevel={14}
-            centerCoordinate={[144.9645832, -37.8081607]}
+            centerCoordinate={mapCenter}
             animationMode="flyTo"
             animationDuration={1000}
           />
