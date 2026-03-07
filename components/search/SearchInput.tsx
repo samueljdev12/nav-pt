@@ -20,6 +20,7 @@ export function SearchInput({
     if (value.trim().length > 2) {
       const timer = setTimeout(async () => {
         const suggestions = await mapboxService.setQuery(value).suggest();
+
         if (onSuggestionsChange) {
           onSuggestionsChange(suggestions);
         }

@@ -24,6 +24,7 @@ class MapboxService {
   private apiKey: string;
   private baseUrl: string;
 
+  // Builder state
   private query: string = "";
   private proximity?: [number, number];
   private limit: number = 8;
@@ -31,6 +32,9 @@ class MapboxService {
   private types: string = "place,address,poi";
   private language: string = "en";
   private selectedSuggestion: MapboxSuggestion | null = null;
+
+  // Error state
+  public error: Error | null = null;
 
   private constructor() {
     this.apiKey = MAPBOX_PUBLIC_KEY || "";
@@ -169,6 +173,7 @@ class MapboxService {
 
       return response.data.suggestions || [];
     } catch (error) {
+      this.error = error instanceof Error ? error : new Error(String(error));
       console.error("❌ Mapbox suggest error:", error);
       return [];
     }
@@ -206,6 +211,7 @@ class MapboxService {
 
       return response.data;
     } catch (error) {
+      this.error = error instanceof Error ? error : new Error(String(error));
       console.error("❌ Mapbox retrieve error:", error);
       return null;
     }
