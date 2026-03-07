@@ -1,7 +1,7 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
-import Mapbox, { MapView } from "@rnmapbox/maps";
+import Mapbox, { MapView, Camera } from "@rnmapbox/maps";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -61,7 +61,14 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <View style={{ flex: 1 }}>
-        <MapView style={{ flex: 1 }} />
+        <MapView style={{ flex: 1 }}>
+          <Camera
+            zoomLevel={14}
+            centerCoordinate={[144.9645832, -37.8081607]}
+            animationMode="flyTo"
+            animationDuration={1000}
+          />
+        </MapView>
         <View
           style={{
             position: "absolute",
