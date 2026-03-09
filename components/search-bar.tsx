@@ -18,15 +18,15 @@ export function SearchBar({
   onIconPress,
 }: SearchBarProps) {
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.inputContainer}>
+    <Pressable onPress={onPress} style={styles.wrapper}>
+      <View style={styles.inputContainer} pointerEvents="none">
         <TextInput
           style={styles.input}
           placeholder={placeholder}
           placeholderTextColor="#5A5A5A"
           value={value}
           onChangeText={onChangeText}
-          onPressIn={onPress}
+          editable={false}
           cursorColor="#1A1A1A"
         />
         <Pressable
@@ -37,7 +37,7 @@ export function SearchBar({
           <MaterialIcons name="search" size={18} color="#1A1A1A" />
         </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
