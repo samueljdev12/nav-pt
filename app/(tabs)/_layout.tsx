@@ -12,21 +12,35 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.light.tint,
-        tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarActiveTintColor: "#FFD300",
+        tabBarInactiveTintColor: "#FFD700",
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          height: 56 + insets.bottom,
-          paddingBottom: Math.max(insets.bottom, 12),
-          paddingTop: 8,
-          borderTopWidth: 1,
-          borderTopColor: "#E2E8F0",
-          backgroundColor: "#FFFFFF",
+          borderTopWidth: 0,
+          backgroundColor: "#71BE46",
+          position: "absolute",
+          bottom: 80,
+          marginHorizontal: 20,
+          alignSelf: "center",
+          width: "auto",
+          borderRadius: 50,
+          overflow: "hidden",
+          height: undefined,
+          paddingBottom: 0,
+          paddingTop: 0,
+        },
+        tabBarItemStyle: {
+          borderRadius: 50,
+          margin: 0,
+          paddingVertical: 7,
+          paddingHorizontal: 4,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
+          display: "none",
         },
       }}
     >
@@ -35,7 +49,34 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={40} name="house.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: "History",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={40} name="clock.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: "Notifications",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={40} name="bell.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: "Add",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={40} name="plus.circle.fill" color={color} />
           ),
         }}
       />
