@@ -10,6 +10,10 @@ import {
 } from "react-native";
 
 import { StopCard } from "../cards/stop-card";
+import { PlusBadge } from "../badges/PlusBadge";
+import { MinusBadge } from "../badges/MinusBadge";
+import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
+import { FavouriteLocation } from "@/types/favourites";
 
 export interface StopItem {
   id: string;
@@ -19,6 +23,8 @@ export interface StopItem {
   color?: string;
   textColor?: string;
   mode?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface StopsModalProps {
@@ -29,6 +35,8 @@ export interface StopsModalProps {
   bottomOffset?: number;
 }
 
+const BADGE_OVERLAP = 14;
+
 export function StopsModal({
   visible,
   stops,
@@ -37,6 +45,8 @@ export function StopsModal({
   bottomOffset = 0,
 }: StopsModalProps) {
   const translateY = useRef(new Animated.Value(0)).current;
+  const { favourites, addFavourite, removeFavourite, isFavourite } =
+    useFavouriteLocations();
 
   useEffect(() => {
     if (visible) {
@@ -50,6 +60,20 @@ export function StopsModal({
   }, [visible, translateY]);
 
   if (!visible) return null;
+
+  const toFavourite = (item: StopItem): FavouriteLocation => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    latitude: item.latitude || 0,
+    longitude: item.longitude || 0,
+    color: item.color,
+    textColor: item.textColor,
+    mode: item.mode,
+  });
+
+  // Filter out stops that are already in favourites
+  const availableNearbyStops = stops.filter((stop) => !isFavourite(stop.id));
 
   return (
     <Animated.View
@@ -78,20 +102,59 @@ export function StopsModal({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ── Nearby Stops ── */}
-        <Text style={styles.sectionHeader}>Nearby Stops</Text>
-
-        {stops.length === 0 ? (
+        {/* ── Your Stops ── */}
+        <Text style={styles.sectionHeader}>Your Stops</Text>
+        {favourites.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>📡</Text>
-            <Text style={styles.emptyTitle}>No nearby stops found</Text>
+            <Text style={styles.emptyIcon}>🚏</Text>
+            <Text style={styles.emptyTitle}>No saved stops yet</Text>
             <Text style={styles.emptySubtitle}>
-              Try moving to a different location.
+              Tap the + on any nearby stop below to save it here.
             </Text>
           </View>
         ) : (
           <View style={styles.list}>
-            {stops.map((item) => (
+            {favourites.map((item) => (
+              <View key={item.id} style={styles.listItem}>
+                <StopCard
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  color={item.color}
+                  textColor={item.textColor}
+                  mode={item.mode}
+                />
+                <MinusBadge
+                  onPress={() => removeFavourite(item.id)}
+                  style={styles.floatingBadge}
+                />
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* ── Divider ── */}
+        <View style={styles.divider} />
+
+        {/* ── Nearby ── */}
+        <Text style={styles.sectionHeader}>Nearby</Text>
+
+        {availableNearbyStops.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>📡</Text>
+            <Text style={styles.emptyTitle}>
+              {stops.length === 0
+                ? "No nearby stops found"
+                : "All nearby stops saved!"}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {stops.length === 0
+                ? "Try moving to a different location."
+                : "You've added all nearby stops to your list."}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.list}>
+            {availableNearbyStops.map((item) => (
               <View key={item.id} style={styles.listItem}>
                 <StopCard
                   title={item.title}
@@ -100,6 +163,10 @@ export function StopsModal({
                   color={item.color}
                   textColor={item.textColor}
                   mode={item.mode}
+                />
+                <PlusBadge
+                  onPress={() => addFavourite(toFavourite(item))}
+                  style={styles.floatingBadge}
                 />
               </View>
             ))}
@@ -159,7 +226,19 @@ const styles = StyleSheet.create({
   },
   listItem: {
     width: "100%",
+    paddingTop: BADGE_OVERLAP,
     position: "relative",
+  },
+  floatingBadge: {
+    position: "absolute",
+    top: 0,
+    right: 8,
+    zIndex: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#F3F4F6",
+    marginVertical: 20,
   },
   emptyState: {
     alignItems: "center",

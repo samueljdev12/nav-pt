@@ -3,6 +3,7 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { StopCard } from "../cards/stop-card";
 import { MinuteBadge } from "../badges/MinuteBadge";
+import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
 
 export interface StopItem {
   id: string;
@@ -25,51 +26,83 @@ export function StopsCarousel({ stops }: StopsCarouselProps) {
   const { width } = Dimensions.get("window");
   const cardWidth = useMemo(() => Math.min(320, width - 64), [width]);
 
+  // Load favourite stops from storage
+  const { favourites } = useFavouriteLocations();
+
+  // Display saved stops if available, otherwise show mock stops
+  const displayStops = favourites.length > 0 ? favourites : stops;
+  const isEmpty = displayStops.length === 0;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>YOUR Stops</Text>
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        snapToAlignment="center"
-        contentContainerStyle={styles.scrollContent}
-        onMomentumScrollEnd={(event) => {
-          const index = Math.round(
-            event.nativeEvent.contentOffset.x / (cardWidth + 12),
-          );
-          setActiveIndex(Math.max(0, Math.min(index, stops.length - 1)));
-        }}
-      >
-        {stops.map((stop) => (
-          <View key={stop.id} style={[styles.cardWrap, { width: cardWidth }]}>
-            {/* Card sits below with top padding so the badge has room */}
-            <StopCard
-              title={stop.title}
-              subtitle={stop.subtitle}
-              minutes={stop.minutes}
-              color={stop.color}
-              textColor={stop.textColor}
-              mode={stop.mode}
-              style={styles.card}
-            />
+      <Text style={styles.header}>YOUR STOPS</Text>
 
-            {/* MinuteBadge floats at the top-left corner, above the card */}
-            <MinuteBadge minutes={stop.minutes} style={styles.floatingBadge} />
+      {isEmpty ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyIcon}>🚏</Text>
+          <Text style={styles.emptyText}>No saved stops yet</Text>
+          <Text style={styles.emptySubtext}>
+            Search to add your favourite stops
+          </Text>
+        </View>
+      ) : (
+        <>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            snapToAlignment="center"
+            contentContainerStyle={styles.scrollContent}
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x / (cardWidth + 12),
+              );
+              setActiveIndex(
+                Math.max(0, Math.min(index, displayStops.length - 1)),
+              );
+            }}
+          >
+            {displayStops.map((stop) => (
+              <View
+                key={stop.id}
+                style={[styles.cardWrap, { width: cardWidth }]}
+              >
+                {/* Card sits below with top padding so the badge has room */}
+                <StopCard
+                  title={stop.title}
+                  subtitle={stop.subtitle}
+                  minutes={stop.minutes}
+                  color={stop.color}
+                  textColor={stop.textColor}
+                  mode={stop.mode}
+                  style={styles.card}
+                />
+
+                {/* MinuteBadge floats at the top-right corner, above the card */}
+                {stop.minutes !== undefined && (
+                  <MinuteBadge
+                    minutes={stop.minutes}
+                    style={styles.floatingBadge}
+                  />
+                )}
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Pagination dots */}
+          <View style={styles.dots}>
+            {displayStops.map((stop, index) => (
+              <View
+                key={stop.id}
+                style={[
+                  styles.dot,
+                  index === activeIndex ? styles.dotActive : styles.dotInactive,
+                ]}
+              />
+            ))}
           </View>
-        ))}
-      </ScrollView>
-      <View style={styles.dots}>
-        {stops.map((stop, index) => (
-          <View
-            key={stop.id}
-            style={[
-              styles.dot,
-              index === activeIndex ? styles.dotActive : styles.dotInactive,
-            ]}
-          />
-        ))}
-      </View>
+        </>
+      )}
     </View>
   );
 }
@@ -97,8 +130,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardWrap: {
-    // Extra top padding so the badge (which is absolutely positioned) doesn't
-    // get clipped and has visual space sitting above the card.
     paddingTop: BADGE_OVERLAP,
     position: "relative",
     alignSelf: "center",
@@ -127,5 +158,25 @@ const styles = StyleSheet.create({
   },
   dotInactive: {
     backgroundColor: "#CBD5F5",
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  emptyIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    textAlign: "center",
   },
 });

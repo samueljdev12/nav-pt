@@ -3,6 +3,10 @@ import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { StopCard } from "../cards/stop-card";
+import { PlusBadge } from "../badges/PlusBadge";
+import { MinusBadge } from "../badges/MinusBadge";
+import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
+import { FavouriteLocation } from "@/types/favourites";
 
 interface StopItem {
   id: string;
@@ -12,6 +16,8 @@ interface StopItem {
   color?: string;
   textColor?: string;
   mode?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface SearchDefaultProps {
@@ -36,12 +42,63 @@ const MOCK_RECENT_LOCATIONS = [
   },
 ];
 
+const BADGE_OVERLAP = 14;
+
 export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
+  const { favourites, addFavourite, removeFavourite, isFavourite } =
+    useFavouriteLocations();
+
+  const toFavourite = (item: StopItem): FavouriteLocation => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    latitude: item.latitude || 0,
+    longitude: item.longitude || 0,
+    color: item.color,
+    textColor: item.textColor,
+    mode: item.mode,
+  });
+
+  // Filter out stops that are already in favourites
+  const availableNearbyStops = nearbyStops.filter(
+    (stop) => !isFavourite(stop.id),
+  );
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
     >
+      {/* ── Your Stops ── */}
+      <Text style={styles.sectionHeader}>Your Stops</Text>
+      {favourites.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyIcon}>🚏</Text>
+          <Text style={styles.emptyTitle}>No saved stops yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Save stops to access them quickly here.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.stopsList}>
+          {favourites.map((stop) => (
+            <View key={stop.id} style={styles.listItem}>
+              <StopCard
+                title={stop.title}
+                subtitle={stop.subtitle}
+                color={stop.color}
+                textColor={stop.textColor}
+                mode={stop.mode}
+              />
+              <MinusBadge
+                onPress={() => removeFavourite(stop.id)}
+                style={styles.floatingBadge}
+              />
+            </View>
+          ))}
+        </View>
+      )}
+
       {/* ── Recent Locations ── */}
       <Text style={styles.sectionHeader}>Recent Locations</Text>
       <View style={styles.recentList}>
@@ -64,17 +121,23 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
 
       {/* ── Nearby ── */}
       <Text style={styles.sectionHeader}>Nearby</Text>
-      {nearbyStops.length === 0 ? (
+      {availableNearbyStops.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📡</Text>
-          <Text style={styles.emptyTitle}>No nearby stops found</Text>
+          <Text style={styles.emptyTitle}>
+            {nearbyStops.length === 0
+              ? "No nearby stops found"
+              : "All nearby stops saved!"}
+          </Text>
           <Text style={styles.emptySubtitle}>
-            Try moving to a different location.
+            {nearbyStops.length === 0
+              ? "Try moving to a different location."
+              : "Check back for more stops nearby."}
           </Text>
         </View>
       ) : (
         <View style={styles.stopsList}>
-          {nearbyStops.map((stop) => (
+          {availableNearbyStops.map((stop) => (
             <View key={stop.id} style={styles.listItem}>
               <StopCard
                 title={stop.title}
@@ -83,6 +146,10 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
                 color={stop.color}
                 textColor={stop.textColor}
                 mode={stop.mode}
+              />
+              <PlusBadge
+                onPress={() => addFavourite(toFavourite(stop))}
+                style={styles.floatingBadge}
               />
             </View>
           ))}
@@ -143,8 +210,14 @@ const styles = StyleSheet.create({
   },
   listItem: {
     width: "100%",
-    paddingTop: 14,
+    paddingTop: BADGE_OVERLAP,
     position: "relative",
+  },
+  floatingBadge: {
+    position: "absolute",
+    top: 0,
+    right: 8,
+    zIndex: 10,
   },
   emptyState: {
     alignItems: "center",
