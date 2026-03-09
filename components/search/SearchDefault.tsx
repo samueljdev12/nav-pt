@@ -69,6 +69,26 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
     >
+      {/* ── Recent Locations ── */}
+      <Text style={styles.sectionHeader}>Recent Locations</Text>
+      <View style={styles.recentList}>
+        {MOCK_RECENT_LOCATIONS.map((location) => (
+          <Pressable
+            key={location.id}
+            style={styles.recentItem}
+            onPress={() => console.log("Navigate to", location.name)}
+          >
+            <View style={styles.recentIcon}>
+              <MaterialIcons name="location-on" size={18} color="#6B7280" />
+            </View>
+            <View style={styles.recentText}>
+              <Text style={styles.recentName}>{location.name}</Text>
+              <Text style={styles.recentAddress}>{location.address}</Text>
+            </View>
+          </Pressable>
+        ))}
+      </View>
+
       {/* ── Your Stops ── */}
       <Text style={styles.sectionHeader}>Your Stops</Text>
       {favourites.length === 0 ? (
@@ -98,26 +118,6 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
           ))}
         </View>
       )}
-
-      {/* ── Recent Locations ── */}
-      <Text style={styles.sectionHeader}>Recent Locations</Text>
-      <View style={styles.recentList}>
-        {MOCK_RECENT_LOCATIONS.map((location) => (
-          <Pressable
-            key={location.id}
-            style={styles.recentItem}
-            onPress={() => console.log("Navigate to", location.name)}
-          >
-            <View style={styles.recentIcon}>
-              <MaterialIcons name="location-on" size={18} color="#6B7280" />
-            </View>
-            <View style={styles.recentText}>
-              <Text style={styles.recentName}>{location.name}</Text>
-              <Text style={styles.recentAddress}>{location.address}</Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
 
       {/* ── Nearby ── */}
       <Text style={styles.sectionHeader}>Nearby</Text>
