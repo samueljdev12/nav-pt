@@ -2,46 +2,17 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { HapticTab } from "@/components/haptic-tab";
+import { CustomTabBar } from "@/components/custom-tab-bar";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: "#FFD300",
-        tabBarInactiveTintColor: "#FFD700",
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          borderTopWidth: 0,
-          backgroundColor: "#71BE46",
-          position: "absolute",
-          bottom: 80,
-          marginHorizontal: 20,
-          alignSelf: "center",
-          width: "auto",
-          borderRadius: 50,
-          overflow: "hidden",
-          height: undefined,
-          paddingBottom: 0,
-          paddingTop: 0,
-        },
-        tabBarItemStyle: {
-          borderRadius: 50,
-          margin: 0,
-          paddingVertical: 7,
-          paddingHorizontal: 4,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-          display: "none",
-        },
       }}
     >
       <Tabs.Screen
