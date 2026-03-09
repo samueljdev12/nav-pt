@@ -66,107 +66,114 @@ export function SearchWindowModal({
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
+    <View
+      style={[
+        styles.overlay,
+        visible ? { display: "flex" } : { display: "none" },
+      ]}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.headerRow}>
-            <Pressable
-              onPress={onClose}
-              style={styles.backButton}
-              accessibilityLabel="Close search"
-            >
-              <MaterialIcons name="arrow-back" size={24} color="#374151" />
-            </Pressable>
-            <Text style={styles.headerTitle}>Search</Text>
-            <View style={{ width: 24 }} />
-          </View>
-
-          <View style={styles.inputWrapper}>
-            <SearchInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSuggestionsChange={setSuggestions}
-              placeholder="Search address or stop..."
-            />
-          </View>
-
-          {hasSearch ? (
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {suggestions.length > 0 ? (
-                <View>
-                  <Text style={styles.sectionHeader}>Suggestions</Text>
-                  <View style={styles.suggestionsList}>
-                    {suggestions.map((suggestion) => (
-                      <Pressable
-                        key={suggestion.mapbox_id}
-                        style={styles.suggestionItem}
-                        onPress={async () => {
-                          setSearchQuery(suggestion.place_formatted);
-                          setSuggestions([]);
-                          // Fetch full details for the selected suggestion
-                          await mapboxService.retrieve(suggestion.mapbox_id);
-                        }}
-                      >
-                        <View style={styles.iconContainer}>
-                          <MaterialIcons
-                            name="location-on"
-                            size={18}
-                            color="#6B7280"
-                          />
-                        </View>
-                        <View style={styles.textContainer}>
-                          <Text style={styles.suggestionName} numberOfLines={1}>
-                            {suggestion.name}
-                          </Text>
-                          <Text
-                            style={styles.suggestionPlace}
-                            numberOfLines={1}
-                          >
-                            {suggestion.place_formatted}
-                          </Text>
-                        </View>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyIcon}>🔍</Text>
-                  <Text style={styles.emptyTitle}>No suggestions found</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Try searching for a different address or location.
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
-          ) : (
-            <SearchDefault nearbyStops={nearbyStops} />
-          )}
+      <View style={styles.spacer} />
+      <View style={styles.container}>
+        <View style={styles.headerRow}>
+          <Pressable
+            onPress={onClose}
+            style={styles.backButton}
+            accessibilityLabel="Close search"
+          >
+            <MaterialIcons name="arrow-back" size={24} color="#374151" />
+          </Pressable>
+          <Text style={styles.headerTitle}>Search</Text>
+          <View style={{ width: 24 }} />
         </View>
+
+        <View style={styles.inputWrapper}>
+          <SearchInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSuggestionsChange={setSuggestions}
+            placeholder="Search address or stop..."
+          />
+        </View>
+
+        {hasSearch ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {suggestions.length > 0 ? (
+              <View>
+                <Text style={styles.sectionHeader}>Suggestions</Text>
+                <View style={styles.suggestionsList}>
+                  {suggestions.map((suggestion) => (
+                    <Pressable
+                      key={suggestion.mapbox_id}
+                      style={styles.suggestionItem}
+                      onPress={async () => {
+                        setSearchQuery(suggestion.place_formatted);
+                        setSuggestions([]);
+                        // Fetch full details for the selected suggestion
+                        await mapboxService.retrieve(suggestion.mapbox_id);
+                      }}
+                    >
+                      <View style={styles.iconContainer}>
+                        <MaterialIcons
+                          name="location-on"
+                          size={18}
+                          color="#6B7280"
+                        />
+                      </View>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.suggestionName} numberOfLines={1}>
+                          {suggestion.name}
+                        </Text>
+                        <Text style={styles.suggestionPlace} numberOfLines={1}>
+                          {suggestion.place_formatted}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>🔍</Text>
+                <Text style={styles.emptyTitle}>No suggestions found</Text>
+                <Text style={styles.emptySubtitle}>
+                  Try searching for a different address or location.
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        ) : (
+          <SearchDefault nearbyStops={nearbyStops} />
+        )}
       </View>
-    </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    position: "absolute",
+    top: 20,
+    left: 16,
+    right: 16,
+    bottom: 130,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
+    zIndex: 100,
+    borderRadius: 24,
+    overflow: "hidden",
+  },
+  spacer: {
+    display: "none",
   },
   container: {
-    flex: 0.9,
+    flex: 1,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 16,
