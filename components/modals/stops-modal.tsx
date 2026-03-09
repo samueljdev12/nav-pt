@@ -10,10 +10,6 @@ import {
 } from "react-native";
 
 import { StopCard } from "../cards/stop-card";
-import { PlusBadge } from "../badges/PlusBadge";
-import { MinusBadge } from "../badges/MinusBadge";
-import { useFavourites } from "@/hooks/use-favourites";
-import { FavouriteStop } from "@/types/favourites";
 
 export interface StopItem {
   id: string;
@@ -33,8 +29,6 @@ export interface StopsModalProps {
   bottomOffset?: number;
 }
 
-const BADGE_OVERLAP = 14;
-
 export function StopsModal({
   visible,
   stops,
@@ -43,10 +37,6 @@ export function StopsModal({
   bottomOffset = 0,
 }: StopsModalProps) {
   const translateY = useRef(new Animated.Value(0)).current;
-  const { favourites, addFavourite, removeFavourite, filterUnfavourited } =
-    useFavourites();
-
-  const nearbyStops = filterUnfavourited(stops);
 
   useEffect(() => {
     if (visible) {
@@ -60,15 +50,6 @@ export function StopsModal({
   }, [visible, translateY]);
 
   if (!visible) return null;
-
-  const toFavourite = (item: StopItem): FavouriteStop => ({
-    id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    color: item.color,
-    textColor: item.textColor,
-    mode: item.mode,
-  });
 
   return (
     <Animated.View
@@ -97,60 +78,20 @@ export function StopsModal({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ── Your Stops ── */}
-        <Text style={styles.sectionHeader}>Your Stops</Text>
+        {/* ── Nearby Stops ── */}
+        <Text style={styles.sectionHeader}>Nearby Stops</Text>
 
-        {favourites.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🚏</Text>
-            <Text style={styles.emptyTitle}>No saved stops yet</Text>
-            <Text style={styles.emptySubtitle}>
-              Tap the + on any nearby stop below to save it here.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.list}>
-            {favourites.map((item) => (
-              <View key={item.id} style={styles.listItem}>
-                <StopCard
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  color={item.color}
-                  textColor={item.textColor}
-                  mode={item.mode}
-                />
-                <MinusBadge
-                  onPress={() => removeFavourite(item.id)}
-                  style={styles.floatingBadge}
-                />
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* ── Divider ── */}
-        <View style={styles.divider} />
-
-        {/* ── Nearby ── */}
-        <Text style={styles.sectionHeader}>Nearby</Text>
-
-        {nearbyStops.length === 0 ? (
+        {stops.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📡</Text>
-            <Text style={styles.emptyTitle}>
-              {stops.length === 0
-                ? "No nearby stops found"
-                : "All nearby stops saved!"}
-            </Text>
+            <Text style={styles.emptyTitle}>No nearby stops found</Text>
             <Text style={styles.emptySubtitle}>
-              {stops.length === 0
-                ? "Try moving to a different location."
-                : "You've added all nearby stops to your list."}
+              Try moving to a different location.
             </Text>
           </View>
         ) : (
           <View style={styles.list}>
-            {nearbyStops.map((item) => (
+            {stops.map((item) => (
               <View key={item.id} style={styles.listItem}>
                 <StopCard
                   title={item.title}
@@ -159,10 +100,6 @@ export function StopsModal({
                   color={item.color}
                   textColor={item.textColor}
                   mode={item.mode}
-                />
-                <PlusBadge
-                  onPress={() => addFavourite(toFavourite(item))}
-                  style={styles.floatingBadge}
                 />
               </View>
             ))}
@@ -222,19 +159,7 @@ const styles = StyleSheet.create({
   },
   listItem: {
     width: "100%",
-    paddingTop: BADGE_OVERLAP,
     position: "relative",
-  },
-  floatingBadge: {
-    position: "absolute",
-    top: 0,
-    right: 8,
-    zIndex: 10,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#F3F4F6",
-    marginVertical: 20,
   },
   emptyState: {
     alignItems: "center",

@@ -3,10 +3,6 @@ import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { StopCard } from "../cards/stop-card";
-import { PlusBadge } from "../badges/PlusBadge";
-import { MinusBadge } from "../badges/MinusBadge";
-import { useFavourites } from "@/hooks/use-favourites";
-import { FavouriteStop } from "@/types/favourites";
 
 interface StopItem {
   id: string;
@@ -41,20 +37,6 @@ const MOCK_RECENT_LOCATIONS = [
 ];
 
 export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
-  const { favourites, filterUnfavourited, addFavourite, removeFavourite } =
-    useFavourites();
-
-  const availableNearby = filterUnfavourited(nearbyStops);
-
-  const toFavourite = (item: StopItem): FavouriteStop => ({
-    id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    color: item.color,
-    textColor: item.textColor,
-    mode: item.mode,
-  });
-
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -80,55 +62,19 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
         ))}
       </View>
 
-      {/* ── Your Stops ── */}
-      <Text style={styles.sectionHeader}>Your Stops</Text>
-      {favourites.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>🚏</Text>
-          <Text style={styles.emptyTitle}>No saved stops yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Save stops to access them quickly here.
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.stopsList}>
-          {favourites.map((stop) => (
-            <View key={stop.id} style={styles.listItem}>
-              <StopCard
-                title={stop.title}
-                subtitle={stop.subtitle}
-                color={stop.color}
-                textColor={stop.textColor}
-                mode={stop.mode}
-              />
-              <MinusBadge
-                onPress={() => removeFavourite(stop.id)}
-                style={styles.floatingBadge}
-              />
-            </View>
-          ))}
-        </View>
-      )}
-
       {/* ── Nearby ── */}
       <Text style={styles.sectionHeader}>Nearby</Text>
-      {availableNearby.length === 0 ? (
+      {nearbyStops.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📡</Text>
-          <Text style={styles.emptyTitle}>
-            {nearbyStops.length === 0
-              ? "No nearby stops found"
-              : "All nearby stops saved!"}
-          </Text>
+          <Text style={styles.emptyTitle}>No nearby stops found</Text>
           <Text style={styles.emptySubtitle}>
-            {nearbyStops.length === 0
-              ? "Try moving to a different location."
-              : "Check back for more stops nearby."}
+            Try moving to a different location.
           </Text>
         </View>
       ) : (
         <View style={styles.stopsList}>
-          {availableNearby.map((stop) => (
+          {nearbyStops.map((stop) => (
             <View key={stop.id} style={styles.listItem}>
               <StopCard
                 title={stop.title}
@@ -137,10 +83,6 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
                 color={stop.color}
                 textColor={stop.textColor}
                 mode={stop.mode}
-              />
-              <PlusBadge
-                onPress={() => addFavourite(toFavourite(stop))}
-                style={styles.floatingBadge}
               />
             </View>
           ))}
@@ -195,11 +137,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#6B7280",
   },
-  divider: {
-    height: 1,
-    backgroundColor: "#F3F4F6",
-    marginVertical: 20,
-  },
   stopsList: {
     gap: 12,
     marginBottom: 16,
@@ -208,12 +145,6 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 14,
     position: "relative",
-  },
-  floatingBadge: {
-    position: "absolute",
-    top: 0,
-    right: 8,
-    zIndex: 10,
   },
   emptyState: {
     alignItems: "center",
