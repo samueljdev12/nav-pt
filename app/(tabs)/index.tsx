@@ -169,7 +169,7 @@ export default function HomeScreen() {
           visible={isStopsOpen}
           onClose={() => setIsStopsOpen(false)}
           topOffset={Math.max(insets.top + 76, 90)}
-          bottomOffset={insets.bottom}
+          bottomOffset={insets.bottom + 80}
         />
         <SearchWindowModal
           visible={isSearchOpen}
