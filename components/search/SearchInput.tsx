@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { StyleSheet, TextInput, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { mapboxService } from "@/api/mapbox";
+import { useUserLocation } from "@/hooks/useUserLocation";
 
 interface SearchInputProps {
   value: string;
@@ -16,9 +17,16 @@ export function SearchInput({
   onSuggestionsChange,
   placeholder = "Search address or stop...",
 }: SearchInputProps) {
+  const { location } = useUserLocation();
+
   useEffect(() => {
     if (value.trim().length > 2) {
       const timer = setTimeout(async () => {
+        // Set proximity to user location if available
+        if (location) {
+          mapboxService.setProximity(location.longitude, location.latitude);
+        }
+
         const suggestions = await mapboxService.setQuery(value).suggest();
 
         if (onSuggestionsChange) {
@@ -32,7 +40,7 @@ export function SearchInput({
         onSuggestionsChange([]);
       }
     }
-  }, [value, onSuggestionsChange]);
+  }, [value, onSuggestionsChange, location]);
 
   return (
     <View style={styles.container}>
