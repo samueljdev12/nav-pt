@@ -1,15 +1,16 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useState } from "react";
 import {
-  Modal,
   StyleSheet,
   Text,
   View,
   Pressable,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SearchInput } from "../search/SearchInput";
 import { SearchDefault } from "../search/SearchDefault";
+import { PlaceDetailCard } from "../cards/place-detail-card";
 import { retrieve } from "@/api/mapbox-search";
 
 interface StopItem {
@@ -53,6 +54,37 @@ interface MapboxSuggestion {
   distance?: number;
 }
 
+interface PlaceDetail {
+  name: string;
+  fullAddress: string;
+  placeFormatted: string;
+  coordinates: { longitude: number; latitude: number };
+  featureType: string;
+  region?: string;
+  postcode?: string;
+}
+
+function extractPlaceDetail(feature: any): PlaceDetail | null {
+  if (!feature) return null;
+
+  const props = feature.properties || {};
+  const coords = feature.geometry?.coordinates;
+  const context = props.context || {};
+
+  return {
+    name: props.name || props.full_address || "Unknown",
+    fullAddress: props.full_address || props.place_formatted || "",
+    placeFormatted: props.place_formatted || "",
+    coordinates: {
+      longitude: coords?.[0] ?? 0,
+      latitude: coords?.[1] ?? 0,
+    },
+    featureType: props.feature_type || "place",
+    region: context.region?.name,
+    postcode: context.postcode?.name,
+  };
+}
+
 export function SearchWindowModal({
   visible,
   onClose,
@@ -60,10 +92,32 @@ export function SearchWindowModal({
 }: SearchWindowModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<MapboxSuggestion[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
+  const [loading, setLoading] = useState(false);
 
   if (!visible) return null;
 
   const hasSearch = searchQuery.trim().length > 0;
+
+  const handleSuggestionTap = async (suggestion: MapboxSuggestion) => {
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
+    setLoading(true);
+
+    const feature = await retrieve(suggestion.mapbox_id);
+    const detail = extractPlaceDetail(feature);
+    setSelectedPlace(detail);
+    setLoading(false);
+  };
+
+  const handleClearPlace = () => {
+    setSelectedPlace(null);
+  };
+
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text);
+    setSelectedPlace(null);
+  };
 
   return (
     <View
@@ -89,13 +143,34 @@ export function SearchWindowModal({
         <View style={styles.inputWrapper}>
           <SearchInput
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearchChange}
             onSuggestionsChange={setSuggestions}
             placeholder="Search address or stop..."
           />
         </View>
 
-        {hasSearch ? (
+        {loading ? (
+          <View style={styles.loadingState}>
+            <ActivityIndicator size="large" color="#71BE46" />
+            <Text style={styles.loadingText}>Fetching details...</Text>
+          </View>
+        ) : selectedPlace ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <PlaceDetailCard
+              name={selectedPlace.name}
+              fullAddress={selectedPlace.fullAddress}
+              placeFormatted={selectedPlace.placeFormatted}
+              coordinates={selectedPlace.coordinates}
+              featureType={selectedPlace.featureType}
+              region={selectedPlace.region}
+              postcode={selectedPlace.postcode}
+              onClose={handleClearPlace}
+            />
+          </ScrollView>
+        ) : hasSearch ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
@@ -108,12 +183,7 @@ export function SearchWindowModal({
                     <Pressable
                       key={suggestion.mapbox_id}
                       style={styles.suggestionItem}
-                      onPress={async () => {
-                        setSearchQuery(suggestion.place_formatted);
-                        setSuggestions([]);
-                        // Fetch full details for the selected suggestion
-                        await retrieve(suggestion.mapbox_id);
-                      }}
+                      onPress={() => handleSuggestionTap(suggestion)}
                     >
                       <View style={styles.iconContainer}>
                         <MaterialIcons
@@ -264,5 +334,16 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     textAlign: "center",
     lineHeight: 18,
+  },
+  loadingState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#9CA3AF",
   },
 });
