@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { IconSymbol } from "./ui/icon-symbol";
 
@@ -76,6 +76,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     width: "100%",
     zIndex: 10,
+    // Shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    // Shadow for Android
+    ...Platform.select({
+      android: {
+        elevation: 12,
+      },
+    }),
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.15)",
   },
   tabItemWrapper: {
     flex: 1,
