@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SearchInput } from "../search/SearchInput";
 import { SearchDefault } from "../search/SearchDefault";
-import { mapboxService } from "@/api/mapbox";
+import { retrieve } from "@/api/mapbox-search";
 
 interface StopItem {
   id: string;
@@ -112,7 +112,7 @@ export function SearchWindowModal({
                         setSearchQuery(suggestion.place_formatted);
                         setSuggestions([]);
                         // Fetch full details for the selected suggestion
-                        await mapboxService.retrieve(suggestion.mapbox_id);
+                        await retrieve(suggestion.mapbox_id);
                       }}
                     >
                       <View style={styles.iconContainer}>
