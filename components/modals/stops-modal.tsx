@@ -11,7 +11,6 @@ import {
 
 import { StopCard } from "../cards/stop-card";
 
-import { MinusBadge } from "../badges/MinusBadge";
 import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
 import { FavouriteLocation } from "@/types/favourites";
 
@@ -123,10 +122,13 @@ export function StopsModal({
                   textColor={item.textColor}
                   mode={item.mode}
                 />
-                <MinusBadge
+                <Pressable
                   onPress={() => removeFavourite(item.id)}
-                  style={styles.floatingBadge}
-                />
+                  style={[styles.floatingBadge, styles.savedBadge]}
+                  accessibilityLabel="Remove from favourites"
+                >
+                  <MaterialIcons name="star-border" size={20} color="#FFFFFF" />
+                </Pressable>
               </View>
             ))}
           </View>
@@ -254,6 +256,21 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1.5,
     borderColor: "#FFD700",
+  },
+  savedBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FFD700",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
   },
   divider: {
     height: 1,
