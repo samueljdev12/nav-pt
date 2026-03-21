@@ -1,16 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable, Share } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { PlaceDetail } from "@/types/mapbox";
 
 interface PlaceDetailCardProps {
-  name: string;
-  fullAddress: string;
-  placeFormatted?: string;
-  coordinates: { longitude: number; latitude: number };
-  featureType: string;
-  region?: string;
-  postcode?: string;
+  place: PlaceDetail;
+  isFavourite?: boolean;
   onClose: () => void;
+  onFavouriteToggle?: () => void;
   onNavigate?: () => void;
 }
 
@@ -24,82 +21,106 @@ const FEATURE_TYPE_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> =
 const FEATURE_TYPE_LABELS: Record<string, string> = {
   poi: "Point of Interest",
   address: "Address",
-  place: "City / Town",
+  place: "Location",
 };
 
 export function PlaceDetailCard({
-  name,
-  fullAddress,
-  placeFormatted,
-  coordinates,
-  featureType,
-  region,
-  postcode,
+  place,
+  isFavourite = false,
   onClose,
+  onFavouriteToggle,
   onNavigate,
 }: PlaceDetailCardProps) {
-  const icon = FEATURE_TYPE_ICONS[featureType] || "location-on";
-  const typeLabel = FEATURE_TYPE_LABELS[featureType] || "Location";
+  const icon = FEATURE_TYPE_ICONS[place.featureType] || "location-on";
+  const typeLabel = FEATURE_TYPE_LABELS[place.featureType] || "Location";
+
+  const coordinateText = `${place.coordinates.latitude.toFixed(5)}, ${place.coordinates.longitude.toFixed(5)}`;
+
+  const regionPostcode = [place.region, place.postcode]
+    .filter(Boolean)
+    .join(" ");
+
+  const handleShare = async () => {
+    const message = `${place.name}\n${place.fullAddress}\n\nhttps://maps.google.com/?q=${place.coordinates.latitude},${place.coordinates.longitude}`;
+    await Share.share({ message });
+  };
 
   return (
     <View style={styles.card}>
+      <Pressable
+        onPress={onClose}
+        hitSlop={12}
+        style={styles.closeButton}
+        accessibilityLabel="Close place details"
+      >
+        <MaterialIcons name="close" size={18} color="#9CA3AF" />
+      </Pressable>
+
       <View style={styles.header}>
         <View style={styles.iconBadge}>
-          <MaterialIcons name={icon} size={22} color="#FFFFFF" />
+          <MaterialIcons name={icon} size={28} color="#FFFFFF" />
         </View>
 
         <View style={styles.headerText}>
           <Text style={styles.name} numberOfLines={2}>
-            {name}
+            {place.name}
           </Text>
           <Text style={styles.typeLabel}>{typeLabel}</Text>
         </View>
 
-        <Pressable onPress={onClose} hitSlop={10} style={styles.closeButton}>
-          <MaterialIcons name="close" size={20} color="#9CA3AF" />
-        </Pressable>
+        {onFavouriteToggle && (
+          <Pressable
+            onPress={onFavouriteToggle}
+            hitSlop={10}
+            style={styles.heartButton}
+            accessibilityLabel={
+              isFavourite ? "Remove from favourites" : "Add to favourites"
+            }
+          >
+            <MaterialIcons
+              name={isFavourite ? "favorite" : "favorite-border"}
+              size={26}
+              color="#71BE46"
+            />
+          </Pressable>
+        )}
       </View>
-
-      <View style={styles.divider} />
 
       <View style={styles.detailsSection}>
-        <DetailRow icon="location-on" value={fullAddress} />
+        <Text style={styles.detailText} numberOfLines={2}>
+          {place.fullAddress}
+        </Text>
 
-        {placeFormatted && <DetailRow icon="near-me" value={placeFormatted} />}
-
-        {region && postcode && (
-          <DetailRow icon="map" value={`${region} ${postcode}`} />
+        {regionPostcode.length > 0 && (
+          <Text style={styles.detailText} numberOfLines={1}>
+            {regionPostcode}
+          </Text>
         )}
 
-        <DetailRow
-          icon="my-location"
-          value={`${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}`}
-        />
+        <Text style={styles.coordinateText}>{coordinateText}</Text>
       </View>
 
-      {onNavigate && (
-        <Pressable onPress={onNavigate} style={styles.navigateButton}>
-          <MaterialIcons name="directions" size={20} color="#FFFFFF" />
-          <Text style={styles.navigateText}>Get Directions</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
+      <View style={styles.actions}>
+        {onNavigate && (
+          <Pressable
+            onPress={onNavigate}
+            style={styles.primaryButton}
+            accessibilityLabel="Get directions"
+          >
+            <MaterialIcons name="directions" size={18} color="#FFFFFF" />
+            <Text style={styles.primaryButtonText}>Get Directions</Text>
+          </Pressable>
+        )}
 
-function DetailRow({
-  icon,
-  value,
-}: {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  value: string;
-}) {
-  return (
-    <View style={styles.detailRow}>
-      <MaterialIcons name={icon} size={16} color="#71BE46" />
-      <Text style={styles.detailValue} numberOfLines={2}>
-        {value}
-      </Text>
+        <Pressable
+          onPress={handleShare}
+          style={styles.secondaryButton}
+          accessibilityLabel="Share location"
+        >
+          <MaterialIcons name="share" size={18} color="#71BE46" />
+          <Text style={styles.secondaryButtonText}>Share Location</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -107,85 +128,105 @@ function DetailRow({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 18,
-    marginHorizontal: 0,
+    borderRadius: 22,
+    padding: 20,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 6,
-    borderWidth: 1,
-    borderColor: "#F3F4F6",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    padding: 4,
   },
   header: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingRight: 28,
   },
   iconBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: "#71BE46",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 14,
   },
   headerText: {
     flex: 1,
-    paddingTop: 2,
   },
   name: {
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "800",
     color: "#111827",
-    lineHeight: 22,
+    lineHeight: 26,
     marginBottom: 2,
   },
   typeLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
-    color: "#71BE46",
-    letterSpacing: 0.3,
+    color: "#9CA3AF",
   },
-  closeButton: {
+  heartButton: {
     padding: 4,
-    marginTop: -2,
-    marginRight: -4,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#F3F4F6",
-    marginVertical: 14,
+    marginLeft: 8,
   },
   detailsSection: {
-    gap: 10,
+    gap: 4,
+    marginBottom: 18,
   },
-  detailRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-  },
-  detailValue: {
-    flex: 1,
-    fontSize: 13,
+  detailText: {
+    fontSize: 15,
     fontWeight: "500",
-    color: "#4B5563",
-    lineHeight: 18,
+    color: "#374151",
+    lineHeight: 22,
   },
-  navigateButton: {
+  coordinateText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#374151",
+    lineHeight: 22,
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  primaryButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#71BE46",
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 14,
-    marginTop: 16,
-    gap: 8,
+    gap: 6,
   },
-  navigateText: {
-    fontSize: 15,
+  primaryButtonText: {
+    fontSize: 14,
     fontWeight: "700",
     color: "#FFFFFF",
+  },
+  secondaryButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingVertical: 14,
+    borderWidth: 1.5,
+    borderColor: "#71BE46",
+    gap: 6,
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#71BE46",
   },
 });

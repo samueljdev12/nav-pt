@@ -49,3 +49,17 @@ export interface MapboxCoordinateInfo {
  * Coordinates as [longitude, latitude] tuple
  */
 export type LatLng = [number, number];
+
+/**
+ * Full place detail returned after retrieving a suggestion
+ * Contains everything needed to display on map and card
+ */
+export interface PlaceDetail {
+  name: string;
+  fullAddress: string;
+  placeFormatted: string;
+  coordinates: MapboxCoordinateInfo;
+  featureType: "place" | "address" | "poi" | string;
+  region?: string;
+  postcode?: string;
+}

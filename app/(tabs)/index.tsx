@@ -1,24 +1,31 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import React from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
-import Mapbox, { MapView, Camera, UserLocation } from "@rnmapbox/maps";
+import React, { useRef, useState } from "react";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import Mapbox, {
+  MapView,
+  Camera,
+  UserLocation,
+  PointAnnotation,
+} from "@rnmapbox/maps";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
-// Set Mapbox access token
-Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAP_BOX_API || "");
-
 import { SearchBar } from "@/components/search-bar";
 import { StopsCarousel } from "@/components/carousels/stops-carousel";
 import { StopsModal } from "@/components/modals/stops-modal";
 import { SearchWindowModal } from "@/components/modals/SearchWindowModal";
+import { PlaceDetailCard } from "@/components/cards/place-detail-card";
 import { useUserLocation } from "@/hooks/useUserLocation";
-// Using mock data while the API is down
+import { PlaceDetail } from "@/types/mapbox";
+
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAP_BOX_API || "");
+
+const MELBOURNE_CENTER: [number, number] = [144.9645832, -37.8081607];
+const DEFAULT_ZOOM = 14;
+const PLACE_ZOOM = 16;
 
 export default function HomeScreen() {
-  // Mock stops data used while the API is down
   const MOCK_STOPS = [
     {
       id: "1001",
@@ -49,121 +56,150 @@ export default function HomeScreen() {
     },
   ];
 
-  // Treat as not loading when using mock data
   const loading = false;
-
   const insets = useSafeAreaInsets();
-  const [isStopsOpen, setIsStopsOpen] = React.useState(false);
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const cameraRef = useRef<Camera>(null);
 
-  // Get user location
-  const {
-    location,
-    loading: locationLoading,
-    error: locationError,
-  } = useUserLocation();
+  const [isStopsOpen, setIsStopsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
 
-  // Use the mock stops directly
+  const { location } = useUserLocation();
+
   const stops = MOCK_STOPS;
 
-  // Use user location or default to Melbourne
   const mapCenter = location
     ? [location.longitude, location.latitude]
-    : [144.9645832, -37.8081607];
+    : MELBOURNE_CENTER;
+
+  const handlePlaceSelect = (place: PlaceDetail) => {
+    setSelectedPlace(place);
+    setIsSearchOpen(false);
+    setIsStopsOpen(false);
+
+    cameraRef.current?.setCamera({
+      centerCoordinate: [
+        place.coordinates.longitude,
+        place.coordinates.latitude,
+      ],
+      zoomLevel: PLACE_ZOOM,
+      animationDuration: 1200,
+      animationMode: "flyTo",
+    });
+  };
+
+  const handleClosePlace = () => {
+    setSelectedPlace(null);
+
+    const center = location
+      ? [location.longitude, location.latitude]
+      : MELBOURNE_CENTER;
+
+    cameraRef.current?.setCamera({
+      centerCoordinate: center,
+      zoomLevel: DEFAULT_ZOOM,
+      animationDuration: 800,
+      animationMode: "flyTo",
+    });
+  };
+
+  const handleOpenSearch = () => {
+    setSelectedPlace(null);
+    setIsSearchOpen(true);
+  };
+
+  const showCarousel = !isStopsOpen && !selectedPlace;
+  const showPlaceCard = selectedPlace !== null;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <View style={{ flex: 1 }}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.screen}>
         <MapView
-          style={{ flex: 1 }}
+          style={styles.map}
           styleURL="mapbox://styles/mapbox/streets-v11"
-          zoomEnabled={true}
-          scrollEnabled={true}
+          zoomEnabled
+          scrollEnabled
           pitchEnabled={false}
           rotateEnabled={false}
           logoEnabled={false}
           attributionEnabled={false}
         >
           <Camera
-            zoomLevel={14}
+            ref={cameraRef}
+            zoomLevel={DEFAULT_ZOOM}
             centerCoordinate={mapCenter}
             animationMode="flyTo"
             animationDuration={1000}
           />
-          <UserLocation
-            visible={true}
-            showUserHeading={false}
-            androidRenderMode="gps"
-          />
+
+          <UserLocation visible androidRenderMode="gps" />
+
+          {selectedPlace && (
+            <PointAnnotation
+              id="selected-place"
+              coordinate={[
+                selectedPlace.coordinates.longitude,
+                selectedPlace.coordinates.latitude,
+              ]}
+            >
+              <View style={styles.markerOuter}>
+                <View style={styles.markerInner}>
+                  <MaterialIcons name="place" size={20} color="#FFFFFF" />
+                </View>
+              </View>
+            </PointAnnotation>
+          )}
         </MapView>
+
         <View
-          style={{
-            position: "absolute",
-            left: 16,
-            right: 16,
-            top: Math.max(insets.top, 12),
-          }}
+          style={[styles.searchBarWrapper, { top: Math.max(insets.top, 12) }]}
         >
           <SearchBar
-            onPress={() => setIsSearchOpen(true)}
-            onIconPress={() => setIsSearchOpen(true)}
+            onPress={handleOpenSearch}
+            onIconPress={handleOpenSearch}
           />
         </View>
-        {!isStopsOpen && (
+
+        {showCarousel && (
           <View
-            style={{
-              position: "absolute",
-              left: 16,
-              right: 16,
-              top: Math.max(insets.top + 76, 90),
-            }}
+            style={[
+              styles.carouselWrapper,
+              { top: Math.max(insets.top + 76, 90) },
+            ]}
           >
-            <View style={{ position: "relative" }}>
+            <View style={styles.carouselInner}>
               {loading ? (
-                <View
-                  style={{
-                    height: 120,
-                    borderRadius: 18,
-                    backgroundColor: "#FFFFFF",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    shadowColor: "#000",
-                    shadowOpacity: 0.08,
-                    shadowRadius: 8,
-                    shadowOffset: { width: 0, height: 4 },
-                    elevation: 3,
-                  }}
-                >
+                <View style={styles.loadingCard}>
                   <ActivityIndicator size="large" color="#111827" />
                 </View>
               ) : (
                 <StopsCarousel stops={stops} />
               )}
+
               <Pressable
                 accessibilityLabel="Add stop"
                 onPress={() => setIsStopsOpen(true)}
-                style={{
-                  position: "absolute",
-                  right: -8,
-                  bottom: -8,
-                  height: 32,
-                  width: 32,
-                  borderRadius: 16,
-                  backgroundColor: "#4B5563",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  shadowColor: "#000",
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                  shadowOffset: { width: 0, height: 2 },
-                  elevation: 3,
-                }}
+                style={styles.addButton}
               >
                 <MaterialIcons name="add" size={20} color="#FFFFFF" />
               </Pressable>
             </View>
           </View>
         )}
+
+        {showPlaceCard && (
+          <View
+            style={[styles.placeCardWrapper, { bottom: insets.bottom + 100 }]}
+          >
+            <PlaceDetailCard
+              place={selectedPlace}
+              onClose={handleClosePlace}
+              onFavouriteToggle={() => {}}
+              onNavigate={() => {}}
+            />
+          </View>
+        )}
+
         <StopsModal
           stops={stops}
           visible={isStopsOpen}
@@ -171,12 +207,92 @@ export default function HomeScreen() {
           topOffset={Math.max(insets.top + 76, 90)}
           bottomOffset={insets.bottom + 80}
         />
+
         <SearchWindowModal
           visible={isSearchOpen}
           onClose={() => setIsSearchOpen(false)}
+          onPlaceSelect={handlePlaceSelect}
           nearbyStops={stops}
         />
       </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  screen: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
+  searchBarWrapper: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+  },
+  carouselWrapper: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+  },
+  carouselInner: {
+    position: "relative",
+  },
+  loadingCard: {
+    height: 120,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  addButton: {
+    position: "absolute",
+    right: -8,
+    bottom: -8,
+    height: 32,
+    width: 32,
+    borderRadius: 16,
+    backgroundColor: "#4B5563",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  placeCardWrapper: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+  },
+  markerOuter: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  markerInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#71BE46",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
+  },
+});

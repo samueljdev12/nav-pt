@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { SearchInput } from "../search/SearchInput";
 import { SearchDefault } from "../search/SearchDefault";
-import { PlaceDetailCard } from "../cards/place-detail-card";
 import { retrieve } from "@/api/mapbox-search";
+import { PlaceDetail, MapboxSuggestion } from "@/types/mapbox";
 
 interface StopItem {
   id: string;
@@ -26,42 +26,8 @@ interface StopItem {
 interface SearchWindowModalProps {
   visible: boolean;
   onClose: () => void;
+  onPlaceSelect: (place: PlaceDetail) => void;
   nearbyStops?: StopItem[];
-}
-
-interface MapboxSuggestion {
-  name: string;
-  mapbox_id: string;
-  place_formatted: string;
-  feature_type?: "place" | "address" | "poi";
-  context?: {
-    country?: {
-      name: string;
-      country_code: string;
-    };
-    region?: {
-      name: string;
-      region_code: string;
-    };
-    place?: {
-      name: string;
-    };
-    address?: {
-      name: string;
-      street_name?: string;
-    };
-  };
-  distance?: number;
-}
-
-interface PlaceDetail {
-  name: string;
-  fullAddress: string;
-  placeFormatted: string;
-  coordinates: { longitude: number; latitude: number };
-  featureType: string;
-  region?: string;
-  postcode?: string;
 }
 
 function extractPlaceDetail(feature: any): PlaceDetail | null {
@@ -88,11 +54,11 @@ function extractPlaceDetail(feature: any): PlaceDetail | null {
 export function SearchWindowModal({
   visible,
   onClose,
+  onPlaceSelect,
   nearbyStops = [],
 }: SearchWindowModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<MapboxSuggestion[]>([]);
-  const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!visible) return null;
@@ -106,17 +72,18 @@ export function SearchWindowModal({
 
     const feature = await retrieve(suggestion.mapbox_id);
     const detail = extractPlaceDetail(feature);
-    setSelectedPlace(detail);
-    setLoading(false);
-  };
 
-  const handleClearPlace = () => {
-    setSelectedPlace(null);
+    setLoading(false);
+
+    if (detail) {
+      setSearchQuery("");
+      onPlaceSelect(detail);
+      onClose();
+    }
   };
 
   const handleSearchChange = (text: string) => {
     setSearchQuery(text);
-    setSelectedPlace(null);
   };
 
   return (
@@ -154,22 +121,6 @@ export function SearchWindowModal({
             <ActivityIndicator size="large" color="#71BE46" />
             <Text style={styles.loadingText}>Fetching details...</Text>
           </View>
-        ) : selectedPlace ? (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <PlaceDetailCard
-              name={selectedPlace.name}
-              fullAddress={selectedPlace.fullAddress}
-              placeFormatted={selectedPlace.placeFormatted}
-              coordinates={selectedPlace.coordinates}
-              featureType={selectedPlace.featureType}
-              region={selectedPlace.region}
-              postcode={selectedPlace.postcode}
-              onClose={handleClearPlace}
-            />
-          </ScrollView>
         ) : hasSearch ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
