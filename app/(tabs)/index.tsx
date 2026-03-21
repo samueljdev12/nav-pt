@@ -77,10 +77,17 @@ export default function HomeScreen() {
     setIsSearchOpen(false);
     setIsStopsOpen(false);
 
+    // Offset the camera center slightly to ensure the selected marker
+    // appears higher on the screen (so it won't be obscured by the place details card).
+    // Positive offset moves the camera north; for southern hemisphere (negative lat)
+    // subtract a small delta to move the camera a bit south of the marker so the
+    // marker appears higher on the screen.
+    const VERTICAL_OFFSET = 0.0012; // reduced so marker sits a bit lower; tweak as needed
+
     cameraRef.current?.setCamera({
       centerCoordinate: [
         place.coordinates.longitude,
-        place.coordinates.latitude,
+        place.coordinates.latitude - VERTICAL_OFFSET,
       ],
       zoomLevel: PLACE_ZOOM,
       animationDuration: 1200,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, Share } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { PlaceDetail } from "@/types/mapbox";
@@ -8,7 +8,8 @@ interface PlaceDetailCardProps {
   isFavourite?: boolean;
   onClose: () => void;
   onFavouriteToggle?: () => void;
-  onNavigate?: () => void;
+  // onNavigate now receives an optional travel mode string ('walk' | 'run' | 'cycle' | 'wheelchair')
+  onNavigate?: (mode?: string) => void;
 }
 
 const FEATURE_TYPE_ICONS: Record<string, keyof typeof MaterialIcons.glyphMap> =
@@ -33,6 +34,10 @@ export function PlaceDetailCard({
 }: PlaceDetailCardProps) {
   const icon = FEATURE_TYPE_ICONS[place.featureType] || "location-on";
   const typeLabel = FEATURE_TYPE_LABELS[place.featureType] || "Location";
+  // Selected travel mode used to compute ETA / route preferences
+  const [travelMode, setTravelMode] = useState<
+    "walk" | "run" | "cycle" | "wheelchair"
+  >("walk");
 
   const coordinateText = `${place.coordinates.latitude.toFixed(5)}, ${place.coordinates.longitude.toFixed(5)}`;
 
@@ -78,9 +83,9 @@ export function PlaceDetailCard({
             }
           >
             <MaterialIcons
-              name={isFavourite ? "favorite" : "favorite-border"}
+              name={isFavourite ? "star" : "star-border"}
               size={26}
-              color="#71BE46"
+              color="#FFD700"
             />
           </Pressable>
         )}
@@ -96,30 +101,122 @@ export function PlaceDetailCard({
             {regionPostcode}
           </Text>
         )}
+      </View>
 
-        <Text style={styles.coordinateText}>{coordinateText}</Text>
+      {/* Mode selector: choose how the user will travel to the stop */}
+      <Text style={styles.modeHelperText}>
+        Select how you'll travel — this affects estimated arrival time and route
+        preferences.
+      </Text>
+      <View style={styles.modeSelector}>
+        <Pressable
+          style={[
+            styles.modeButton,
+            travelMode === "walk" && styles.modeButtonActive,
+          ]}
+          onPress={() => setTravelMode("walk")}
+          accessibilityLabel="Select walking (normal) mode"
+        >
+          <MaterialIcons
+            name="directions-walk"
+            size={16}
+            color={travelMode === "walk" ? "#FFFFFF" : "#374151"}
+            style={styles.modeIcon}
+          />
+          <Text
+            style={[
+              styles.modeButtonText,
+              travelMode === "walk" && styles.modeButtonTextActive,
+            ]}
+          >
+            Walk
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.modeButton,
+            travelMode === "run" && styles.modeButtonActive,
+          ]}
+          onPress={() => setTravelMode("run")}
+          accessibilityLabel="Select running mode"
+        >
+          <MaterialIcons
+            name="directions-run"
+            size={16}
+            color={travelMode === "run" ? "#FFFFFF" : "#374151"}
+            style={styles.modeIcon}
+          />
+          <Text
+            style={[
+              styles.modeButtonText,
+              travelMode === "run" && styles.modeButtonTextActive,
+            ]}
+          >
+            Run
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.modeButton,
+            travelMode === "cycle" && styles.modeButtonActive,
+          ]}
+          onPress={() => setTravelMode("cycle")}
+          accessibilityLabel="Select cycling mode"
+        >
+          <MaterialIcons
+            name="directions-bike"
+            size={16}
+            color={travelMode === "cycle" ? "#FFFFFF" : "#374151"}
+            style={styles.modeIcon}
+          />
+          <Text
+            style={[
+              styles.modeButtonText,
+              travelMode === "cycle" && styles.modeButtonTextActive,
+            ]}
+          >
+            Cycle
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.modeButton,
+            travelMode === "wheelchair" && styles.modeButtonActive,
+          ]}
+          onPress={() => setTravelMode("wheelchair")}
+          accessibilityLabel="Select wheelchair mode"
+        >
+          <MaterialIcons
+            name="accessible"
+            size={16}
+            color={travelMode === "wheelchair" ? "#FFFFFF" : "#374151"}
+            style={styles.modeIcon}
+          />
+          <Text
+            style={[
+              styles.modeButtonText,
+              travelMode === "wheelchair" && styles.modeButtonTextActive,
+            ]}
+          >
+            Wheelchair
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.actions}>
         {onNavigate && (
           <Pressable
-            onPress={onNavigate}
+            onPress={() => onNavigate && onNavigate(travelMode)}
             style={styles.primaryButton}
             accessibilityLabel="Get directions"
           >
             <MaterialIcons name="directions" size={18} color="#FFFFFF" />
-            <Text style={styles.primaryButtonText}>Get Directions</Text>
+            <Text style={styles.primaryButtonText}>Directions</Text>
           </Pressable>
         )}
-
-        <Pressable
-          onPress={handleShare}
-          style={styles.secondaryButton}
-          accessibilityLabel="Share location"
-        >
-          <MaterialIcons name="share" size={18} color="#71BE46" />
-          <Text style={styles.secondaryButtonText}>Share Location</Text>
-        </Pressable>
       </View>
     </View>
   );
@@ -228,5 +325,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#71BE46",
+  },
+  // Mode selector styles
+  modeHelperText: {
+    fontSize: 12,
+    color: "#374151",
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  modeSelector: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  modeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+  },
+  modeButtonActive: {
+    backgroundColor: "#71BE46",
+  },
+  modeIcon: {
+    marginRight: 8,
+  },
+  modeButtonText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#374151",
+  },
+  modeButtonTextActive: {
+    color: "#FFFFFF",
   },
 });

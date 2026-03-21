@@ -103,7 +103,6 @@ export function SearchWindowModal({
           >
             <MaterialIcons name="arrow-back" size={24} color="#374151" />
           </Pressable>
-          <Text style={styles.headerTitle}>Search</Text>
           <View style={{ width: 24 }} />
         </View>
 
