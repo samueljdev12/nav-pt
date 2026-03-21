@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { StopCard } from "../cards/stop-card";
-import { PlusBadge } from "../badges/PlusBadge";
+
 import { MinusBadge } from "../badges/MinusBadge";
 import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
 import { FavouriteLocation } from "@/types/favourites";
@@ -109,7 +109,7 @@ export function StopsModal({
             <Text style={styles.emptyIcon}>🚏</Text>
             <Text style={styles.emptyTitle}>No saved stops yet</Text>
             <Text style={styles.emptySubtitle}>
-              Tap the + on any nearby stop below to save it here.
+              Tap the heart on any nearby stop below to save it here.
             </Text>
           </View>
         ) : (
@@ -136,7 +136,7 @@ export function StopsModal({
         <View style={styles.divider} />
 
         {/* ── Nearby ── */}
-        <Text style={styles.sectionHeader}>Nearby</Text>
+        <Text style={styles.sectionHeader}>Nearby Stops</Text>
 
         {availableNearbyStops.length === 0 ? (
           <View style={styles.emptyState}>
@@ -164,10 +164,13 @@ export function StopsModal({
                   textColor={item.textColor}
                   mode={item.mode}
                 />
-                <PlusBadge
+                <Pressable
                   onPress={() => addFavourite(toFavourite(item))}
-                  style={styles.floatingBadge}
-                />
+                  style={[styles.floatingBadge, styles.heartBadge]}
+                  accessibilityLabel="Add to favourites"
+                >
+                  <MaterialIcons name="star-border" size={20} color="#FFD700" />
+                </Pressable>
               </View>
             ))}
           </View>
@@ -236,6 +239,21 @@ const styles = StyleSheet.create({
     top: 0,
     right: 8,
     zIndex: 10,
+  },
+  heartBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: "#FFD700",
   },
   divider: {
     height: 1,
