@@ -3,8 +3,7 @@ import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { StopCard } from "../cards/stop-card";
-import { PlusBadge } from "../badges/PlusBadge";
-import { MinusBadge } from "../badges/MinusBadge";
+
 import { useFavouriteLocations } from "@/hooks/use-favourite-locations";
 import { FavouriteLocation } from "@/types/favourites";
 
@@ -110,10 +109,13 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
                 textColor={stop.textColor}
                 mode={stop.mode}
               />
-              <MinusBadge
+              <Pressable
                 onPress={() => removeFavourite(stop.id)}
-                style={styles.floatingBadge}
-              />
+                style={[styles.floatingBadge, styles.savedBadge]}
+                accessibilityLabel="Remove from favourites"
+              >
+                <MaterialIcons name="star-border" size={20} color="#FFFFFF" />
+              </Pressable>
             </View>
           ))}
         </View>
@@ -147,10 +149,13 @@ export function SearchDefault({ nearbyStops }: SearchDefaultProps) {
                 textColor={stop.textColor}
                 mode={stop.mode}
               />
-              <PlusBadge
+              <Pressable
                 onPress={() => addFavourite(toFavourite(stop))}
-                style={styles.floatingBadge}
-              />
+                style={[styles.floatingBadge, styles.starBadge]}
+                accessibilityLabel="Add to favourites"
+              >
+                <MaterialIcons name="star-border" size={20} color="#FFD700" />
+              </Pressable>
             </View>
           ))}
         </View>
@@ -218,6 +223,36 @@ const styles = StyleSheet.create({
     top: 0,
     right: 8,
     zIndex: 10,
+  },
+  starBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+  },
+  savedBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FFD700",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
   },
   emptyState: {
     alignItems: "center",
