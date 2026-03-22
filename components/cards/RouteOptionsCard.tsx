@@ -39,6 +39,7 @@ export interface RouteOptionsCardProps {
   destination: PlaceDetail | null;
   travelMode?: string;
   onClose: () => void;
+  onSelect?: (route: RouteOption) => void;
   topOffset?: number;
   bottomOffset?: number;
 }
@@ -201,6 +202,7 @@ export function RouteOptionsCard({
   destination,
   travelMode,
   onClose,
+  onSelect,
   topOffset = 90,
   bottomOffset = 90,
 }: RouteOptionsCardProps) {
@@ -296,6 +298,7 @@ export function RouteOptionsCard({
             <Pressable
               key={route.id}
               style={styles.routeCard}
+              onPress={() => onSelect?.(route)}
               accessibilityLabel={`Route departing ${route.departureTime}, ${route.totalMinutes} minutes`}
             >
               {/* ── Route card top: time range + status badge + duration ── */}

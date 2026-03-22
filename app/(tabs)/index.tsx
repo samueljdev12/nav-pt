@@ -16,7 +16,11 @@ import { StopsCarousel } from "@/components/carousels/stops-carousel";
 import { StopsModal } from "@/components/modals/stops-modal";
 import { SearchWindowModal } from "@/components/modals/SearchWindowModal";
 import { PlaceDetailCard } from "@/components/cards/place-detail-card";
-import { RouteOptionsCard } from "@/components/cards/RouteOptionsCard";
+import {
+  RouteOptionsCard,
+  RouteOption,
+} from "@/components/cards/RouteOptionsCard";
+import { JourneyDetailCard } from "@/components/cards/JourneyDetailCard";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { PlaceDetail } from "@/types/mapbox";
 
@@ -68,6 +72,8 @@ export default function HomeScreen() {
   const [selectedTravelMode, setSelectedTravelMode] = useState<
     string | undefined
   >(undefined);
+  const [selectedRoute, setSelectedRoute] = useState<RouteOption | null>(null);
+  const [journeyDetailVisible, setJourneyDetailVisible] = useState(false);
 
   const { location } = useUserLocation();
 
@@ -120,8 +126,13 @@ export default function HomeScreen() {
     setIsSearchOpen(true);
   };
 
-  const showCarousel = !isStopsOpen && !selectedPlace && !routeOptionsVisible;
-  const showPlaceCard = selectedPlace !== null && !routeOptionsVisible;
+  const showCarousel =
+    !isStopsOpen &&
+    !selectedPlace &&
+    !routeOptionsVisible &&
+    !journeyDetailVisible;
+  const showPlaceCard =
+    selectedPlace !== null && !routeOptionsVisible && !journeyDetailVisible;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -163,7 +174,7 @@ export default function HomeScreen() {
           )}
         </MapView>
 
-        {!routeOptionsVisible && (
+        {!routeOptionsVisible && !journeyDetailVisible && (
           <View
             style={[styles.searchBarWrapper, { top: Math.max(insets.top, 12) }]}
           >
@@ -217,11 +228,31 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {routeOptionsVisible && (
+        {routeOptionsVisible && !journeyDetailVisible && (
           <RouteOptionsCard
             destination={selectedPlace}
             travelMode={selectedTravelMode}
             onClose={() => setRouteOptionsVisible(false)}
+            onSelect={(route) => {
+              setSelectedRoute(route);
+              setJourneyDetailVisible(true);
+            }}
+            topOffset={Math.max(insets.top + 16, 28)}
+            bottomOffset={insets.bottom + 90}
+          />
+        )}
+
+        {journeyDetailVisible && (
+          <JourneyDetailCard
+            route={selectedRoute}
+            destination={selectedPlace}
+            onClose={() => {
+              setJourneyDetailVisible(false);
+              setSelectedRoute(null);
+            }}
+            onGo={() => {
+              console.log("GO pressed for route:", selectedRoute?.id);
+            }}
             topOffset={Math.max(insets.top + 16, 28)}
             bottomOffset={insets.bottom + 90}
           />
