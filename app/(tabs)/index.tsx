@@ -16,6 +16,7 @@ import { StopsCarousel } from "@/components/carousels/stops-carousel";
 import { StopsModal } from "@/components/modals/stops-modal";
 import { SearchWindowModal } from "@/components/modals/SearchWindowModal";
 import { PlaceDetailCard } from "@/components/cards/place-detail-card";
+import { RouteOptionsCard } from "@/components/cards/RouteOptionsCard";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { PlaceDetail } from "@/types/mapbox";
 
@@ -63,6 +64,10 @@ export default function HomeScreen() {
   const [isStopsOpen, setIsStopsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
+  const [routeOptionsVisible, setRouteOptionsVisible] = useState(false);
+  const [selectedTravelMode, setSelectedTravelMode] = useState<
+    string | undefined
+  >(undefined);
 
   const { location } = useUserLocation();
 
@@ -115,8 +120,8 @@ export default function HomeScreen() {
     setIsSearchOpen(true);
   };
 
-  const showCarousel = !isStopsOpen && !selectedPlace;
-  const showPlaceCard = selectedPlace !== null;
+  const showCarousel = !isStopsOpen && !selectedPlace && !routeOptionsVisible;
+  const showPlaceCard = selectedPlace !== null && !routeOptionsVisible;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -202,9 +207,22 @@ export default function HomeScreen() {
               place={selectedPlace}
               onClose={handleClosePlace}
               onFavouriteToggle={() => {}}
-              onNavigate={() => {}}
+              onNavigate={(mode) => {
+                setSelectedTravelMode(mode);
+                setRouteOptionsVisible(true);
+              }}
             />
           </View>
+        )}
+
+        {routeOptionsVisible && (
+          <RouteOptionsCard
+            destination={selectedPlace}
+            travelMode={selectedTravelMode}
+            onClose={() => setRouteOptionsVisible(false)}
+            topOffset={Math.max(insets.top + 76, 90)}
+            bottomOffset={insets.bottom + 90}
+          />
         )}
 
         <StopsModal
