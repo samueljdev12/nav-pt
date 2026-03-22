@@ -33,22 +33,13 @@ export function PlaceDetailCard({
   onNavigate,
 }: PlaceDetailCardProps) {
   const icon = FEATURE_TYPE_ICONS[place.featureType] || "location-on";
-  const typeLabel = FEATURE_TYPE_LABELS[place.featureType] || "Location";
-  // Selected travel mode used to compute ETA / route preferences
   const [travelMode, setTravelMode] = useState<
     "walk" | "run" | "cycle" | "wheelchair"
   >("walk");
 
-  const coordinateText = `${place.coordinates.latitude.toFixed(5)}, ${place.coordinates.longitude.toFixed(5)}`;
-
   const regionPostcode = [place.region, place.postcode]
     .filter(Boolean)
     .join(" ");
-
-  const handleShare = async () => {
-    const message = `${place.name}\n${place.fullAddress}\n\nhttps://maps.google.com/?q=${place.coordinates.latitude},${place.coordinates.longitude}`;
-    await Share.share({ message });
-  };
 
   return (
     <View style={styles.card}>
@@ -70,7 +61,6 @@ export function PlaceDetailCard({
           <Text style={styles.name} numberOfLines={2}>
             {place.name}
           </Text>
-          <Text style={styles.typeLabel}>{typeLabel}</Text>
         </View>
 
         {onFavouriteToggle && (
@@ -226,7 +216,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 22,
-    padding: 20,
+    padding: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.18,
@@ -335,25 +325,29 @@ const styles = StyleSheet.create({
   },
   modeSelector: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 12,
   },
   modeButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 12,
     backgroundColor: "#F3F4F6",
+    flex: 1,
+    minWidth: "40%",
   },
   modeButtonActive: {
     backgroundColor: "#71BE46",
   },
   modeIcon: {
-    marginRight: 8,
+    marginRight: 4,
   },
   modeButtonText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#374151",
   },
