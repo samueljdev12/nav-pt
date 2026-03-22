@@ -163,14 +163,16 @@ export default function HomeScreen() {
           )}
         </MapView>
 
-        <View
-          style={[styles.searchBarWrapper, { top: Math.max(insets.top, 12) }]}
-        >
-          <SearchBar
-            onPress={handleOpenSearch}
-            onIconPress={handleOpenSearch}
-          />
-        </View>
+        {!routeOptionsVisible && (
+          <View
+            style={[styles.searchBarWrapper, { top: Math.max(insets.top, 12) }]}
+          >
+            <SearchBar
+              onPress={handleOpenSearch}
+              onIconPress={handleOpenSearch}
+            />
+          </View>
+        )}
 
         {showCarousel && (
           <View
@@ -220,7 +222,7 @@ export default function HomeScreen() {
             destination={selectedPlace}
             travelMode={selectedTravelMode}
             onClose={() => setRouteOptionsVisible(false)}
-            topOffset={Math.max(insets.top + 76, 90)}
+            topOffset={Math.max(insets.top + 16, 28)}
             bottomOffset={insets.bottom + 90}
           />
         )}
